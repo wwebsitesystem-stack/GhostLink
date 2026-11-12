@@ -285,6 +285,87 @@
         }
 
 
+        /* --- CLOUD ACCOUNT --- */
+        .sidebar-account-wrap {
+            width: 100%;
+            border-top: 1px solid var(--border);
+            padding-top: 8px;
+            margin-top: 8px;
+            flex-shrink: 0;
+        }
+
+        .sidebar-account {
+            width: 100%;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            background: transparent;
+            border: none;
+            color: var(--text-dim);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            font-family: var(--font);
+            transition: 0.2s;
+        }
+
+        .sidebar-account:hover { color: var(--accent); background: rgba(255, 255, 255, 0.05); }
+
+        .sidebar-account-icon {
+            min-width: 72px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .sidebar-account-icon img {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            object-fit: cover;
+        }
+
+        #gl-sidebar-glyph {
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: 1px solid var(--border);
+            font-size: 12px;
+            font-weight: bold;
+            color: var(--accent);
+        }
+
+        .sidebar-account-label {
+            position: absolute;
+            left: 72px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 130px;
+            opacity: 0;
+            transition: opacity 0.1s;
+            pointer-events: none;
+            font-size: 0.75rem;
+        }
+
+        .sidebar:hover .sidebar-account-label { opacity: 1; }
+
+        .gl-sync-dot {
+            display: none;
+            position: absolute;
+            left: 47px;
+            top: 15px;
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #34d399;
+        }
+
         .main-view { 
             flex-grow: 1; 
             margin-left: 72px; 
@@ -2262,6 +2343,16 @@
         <div class="logo-box" onclick="openReadmeModal()" title="View README" style="cursor:pointer;">◈</div>
         <div class="nav-group" id="sidebar-nav-top"></div>
         <div class="sidebar-bottom" id="sidebar-nav-bottom"></div>
+        <div class="sidebar-account-wrap">
+            <button class="sidebar-account" id="gl-sidebar-account" title="Sign in with Google" type="button">
+                <span class="sidebar-account-icon">
+                    <img id="gl-sidebar-avatar" alt="" style="display:none;">
+                    <span id="gl-sidebar-glyph">G</span>
+                    <i class="gl-sync-dot" id="gl-sidebar-dot"></i>
+                </span>
+                <span class="sidebar-account-label" id="gl-sidebar-label">Sign in with Google</span>
+            </button>
+        </div>
     </aside>
 
     <div class="status-hud" id="home-hud">
@@ -2356,6 +2447,59 @@
                 <p style="color:var(--text-dim)">Global configuration and tab cloaking.</p>
             </div>
             <div class="settings-grid">
+                <!-- CLOUD ACCOUNT -->
+                <div class="settings-card" id="gl-account-card">
+                    <h3>Cloud Account</h3>
+                    <p style="font-size: 0.8rem; color: var(--text-dim); margin-bottom: 15px; line-height: 1.5;">
+                        Sign in with Google to keep your settings, shortcuts, custom apps, proxy config, bookmarks, favourites and achievements saved to your account.
+                    </p>
+
+                    <div id="gl-account-out">
+                        <button class="btn-start" id="gl-google-signin" type="button" style="margin-top:0; width:100%; display:flex; align-items:center; justify-content:center; gap:10px;">
+                            <svg width="16" height="16" viewBox="0 0 48 48" aria-hidden="true">
+                                <path fill="#4285F4" d="M45.12 24.5c0-1.56-.14-3.06-.4-4.5H24v8.51h11.84c-.51 2.75-2.06 5.08-4.39 6.64v5.52h7.11c4.16-3.83 6.56-9.47 6.56-16.17z"/>
+                                <path fill="#34A853" d="M24 46c5.94 0 10.92-1.97 14.56-5.33l-7.11-5.52c-1.97 1.32-4.49 2.1-7.45 2.1-5.73 0-10.58-3.87-12.31-9.07H4.34v5.7C7.96 41.07 15.4 46 24 46z"/>
+                                <path fill="#FBBC05" d="M11.69 28.18C11.25 26.86 11 25.45 11 24s.25-2.86.69-4.18v-5.7H4.34A21.96 21.96 0 0 0 2 24c0 3.55.85 6.91 2.34 9.88l7.35-5.7z"/>
+                                <path fill="#EA4335" d="M24 10.75c3.23 0 6.13 1.11 8.41 3.29l6.31-6.31C34.91 4.18 29.93 2 24 2 15.4 2 7.96 6.93 4.34 14.12l7.35 5.7c1.73-5.2 6.58-9.07 12.31-9.07z"/>
+                            </svg>
+                            SIGN IN WITH GOOGLE
+                        </button>
+                        <p style="font-size:0.7rem; color:var(--text-dim); margin-top:10px; line-height:1.5;">
+                            Your data is stored in your own Firebase account and is only readable by you.
+                        </p>
+                    </div>
+
+                    <div id="gl-account-in" style="display:none;">
+                        <div style="display:flex; align-items:center; gap:12px; margin-bottom:14px;">
+                            <img id="gl-account-avatar" alt="" style="width:44px; height:44px; border-radius:50%; border:1px solid var(--border); object-fit:cover;">
+                            <div style="min-width:0;">
+                                <div id="gl-account-name" style="font-size:0.9rem; font-weight:bold; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+                                <div id="gl-account-email" style="font-size:0.72rem; color:var(--text-dim); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;"></div>
+                            </div>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:8px; font-size:0.72rem; color:var(--text-dim); margin-bottom:14px;">
+                            <span id="gl-account-dot" style="width:7px; height:7px; border-radius:50%; background:var(--accent); display:inline-block; flex-shrink:0;"></span>
+                            <span id="gl-account-status">Cloud sync ready</span>
+                            <span id="gl-account-tabs" style="margin-left:auto; white-space:nowrap;"></span>
+                        </div>
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+                            <button class="btn-small run" id="gl-sync-now" type="button" style="padding:10px;">SYNC NOW</button>
+                            <button class="btn-small" id="gl-backup-now" type="button" style="padding:10px;">BACK UP</button>
+                        </div>
+                        <button class="btn-small" id="gl-signout" type="button" style="width:100%; margin-top:8px; padding:10px; color:#ff4444; border-color:rgba(255,68,68,0.4);">SIGN OUT</button>
+                    </div>
+
+                    <div id="gl-refresh-panel" style="display:none; margin-top:16px; padding-top:16px; border-top:1px solid var(--border);">
+                        <div style="font-size:0.88rem; font-weight:bold; margin-bottom:4px;">Global Refresh</div>
+                        <p style="font-size:0.72rem; color:var(--text-dim); line-height:1.5; margin-bottom:10px;">
+                            Reload every open GhostLink and Nexus tab from one account. Also available from the
+                            <a href="https://textnexus.me/system-console.html" target="_blank" rel="noopener" style="color:var(--accent);">TextNexus system console</a>.
+                        </p>
+                        <button class="btn-start" id="gl-system-refresh" type="button" style="margin-top:0; width:100%;">REFRESH ALL OPEN TABS</button>
+                        <p id="gl-refresh-msg" style="font-size:0.7rem; color:var(--text-dim); margin-top:8px; min-height:1em;"></p>
+                    </div>
+                </div>
+
                 <div class="settings-card">
                     <h3>Tab Cloaker</h3>
                     <div class="input-group">
@@ -5018,9 +5162,10 @@
             if (!silentLoad) saveConfig();
         }
 
-        function resetSettings() { 
+        async function resetSettings() { 
             if(confirm("Factory reset will wipe all apps and settings. Continue?")) {
                 if (window.__glAch) window.__glAch.onResetSettings();
+                try { if (window.GhostLinkCloud?.wipeCloud) await window.GhostLinkCloud.wipeCloud(); } catch(e) {}
                 localStorage.clear(); 
                 location.reload(); 
             }
