@@ -2335,6 +2335,85 @@
         }
         /* --- END PROXY CSS --- */
 
+        /* --- ADSTERRA ADS --- */
+        .gl-ad-rail {
+            flex-shrink: 0;
+            width: 160px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .gl-ad-label {
+            font-size: 0.55rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            opacity: 0.6;
+        }
+
+        .gl-ad-banner {
+            width: 160px;
+            height: 300px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .gl-ad-banner iframe {
+            display: block;
+            width: 160px;
+            height: 300px;
+            border: 0;
+            background: transparent;
+        }
+
+        .gl-ad-link {
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text-dim);
+            text-decoration: none;
+            font-family: var(--font);
+            transition: border-color 0.2s, color 0.2s, box-shadow 0.2s;
+        }
+
+        .gl-ad-link:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+            box-shadow: 0 0 18px var(--accent-glow);
+        }
+
+        .gl-ad-link-tag {
+            font-size: 0.5rem;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--accent);
+            opacity: 0.85;
+        }
+
+        .gl-ad-link-title {
+            font-size: 0.7rem;
+            line-height: 1.4;
+            color: inherit;
+        }
+
+        .gl-ad-link-cta {
+            font-size: 0.62rem;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+
+        @media (max-width: 1100px) {
+            .gl-ad-rail { display: none; }
+        }
+
     </style>
 </head>
 <body>
@@ -2386,6 +2465,15 @@
                 <div id="home-clock">00:00:00</div>
                 <div id="home-date">LOADING SYSTEM...</div>
             </div>
+            <aside class="gl-ad-rail" aria-label="Sponsored">
+                <span class="gl-ad-label">Sponsored</span>
+                <div class="gl-ad-banner" id="gl-ad-160x300"></div>
+                <a class="gl-ad-link" id="gl-ad-smartlink" href="https://arwf.org/4/2434e6dc4d557f6c6a101c132bc9422f" target="_blank" rel="sponsored noopener noreferrer">
+                    <span class="gl-ad-link-tag">Ad</span>
+                    <span class="gl-ad-link-title">GhostLink partner offer</span>
+                    <span class="gl-ad-link-cta">Open &rarr;</span>
+                </a>
+            </aside>
         </section>
 
         <section id="customapps" class="view-section">
@@ -8834,6 +8922,76 @@
             const overlay = document.getElementById('owner-notice-overlay');
             if (e.key === 'Escape' && overlay && overlay.style.display === 'flex') closeOwnerNotice();
         });
+    </script>
+    <script>
+        /* ── ADSTERRA ADS ────────────────────────────────────────────────
+           Smartlink: plain sponsored link under the banner.
+           Banner: the 160x300 snippet runs inside a sandboxed srcdoc iframe
+           so its `atOptions` global stays isolated from the app and the
+           creative cannot reach GhostLink's storage or Firebase session. */
+        (function () {
+            var SMARTLINK = 'https://arwf.org/4/2434e6dc4d557f6c6a101c132bc9422f';
+            var BANNER = {
+                key: '24ff62f1c76f75346660e57259b585c3',
+                width: 160,
+                height: 300,
+                src: 'https://bicea.org/22/24ff62f1c76f75346660e57259b585c3'
+            };
+
+            function mountBanner() {
+                var slot = document.getElementById('gl-ad-160x300');
+                if (!slot || slot.dataset.loaded === '1') return;
+                slot.dataset.loaded = '1';
+
+                var doc = '<!DOCTYPE html><html><head><meta charset="utf-8">'
+                    + '<style>html,body{margin:0;padding:0;background:transparent;overflow:hidden;}</style>'
+                    + '</head><body>'
+                    + '<script>atOptions = ' + JSON.stringify({
+                        key: BANNER.key,
+                        format: 'iframe',
+                        height: BANNER.height,
+                        width: BANNER.width,
+                        params: {}
+                    }) + ';<\/script>'
+                    + '<script src="' + BANNER.src + '"><\/script>'
+                    + '</body></html>';
+
+                var frame = document.createElement('iframe');
+                frame.width = String(BANNER.width);
+                frame.height = String(BANNER.height);
+                frame.title = 'Advertisement';
+                frame.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox allow-forms');
+                frame.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
+                frame.srcdoc = doc;
+                slot.appendChild(frame);
+            }
+
+            // Ad creatives only render reliably once the home view is visible.
+            function whenHomeVisible(cb) {
+                var home = document.getElementById('home-content');
+                if (!home) return;
+                if (home.offsetParent !== null) { cb(); return; }
+                var observer = new MutationObserver(function () {
+                    if (home.offsetParent !== null) {
+                        observer.disconnect();
+                        cb();
+                    }
+                });
+                observer.observe(home, { attributes: true, attributeFilter: ['style', 'class'] });
+            }
+
+            function initAds() {
+                var link = document.getElementById('gl-ad-smartlink');
+                if (link) link.href = SMARTLINK;
+                whenHomeVisible(mountBanner);
+            }
+
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', initAds);
+            } else {
+                initAds();
+            }
+        })();
     </script>
 </body>
 </html>
