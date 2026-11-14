@@ -4,8 +4,11 @@ Single-page proxy browser behind a tutoring-app cover.
 
 - `index.html` — the TutorLink cover page. It asks whether you are a student or a
   teacher and sends you to the matching workspace.
-- `ghostlink.html` — the actual app (proxy browser, apps, settings, cloud account).
-  This is where the **student** option goes.
+- `ghostlink.html` — the actual app (proxy browser, apps, settings, cloud account),
+  presented as the **TutorLink Student studio**. This is where the **student**
+  option goes. It carries the same TutorLink header (brand mark, term chip,
+  *Switch role*) and the cover's indigo/type defaults, so the two pages read as
+  one product. A theme saved in Settings still overrides those defaults.
 - `teacher.html` — the teacher workspace: overview, classes, assignments, roster.
   This is where the **teacher** option goes.
 - `global-refresh-client.js` — adds the Google account and the Firebase-backed

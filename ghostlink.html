@@ -3,22 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostLink - Free Proxy Browser</title>
-    <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/virtuan4-max/ghostlinkhub@main/assets/favicon.png">
-    <meta name="description" content="GhostLink is a free proxy browser. Access any website anonymously and securely.">
-    <meta name="keywords" content="ghostlink, proxy, browser, anonymous browsing, unblock websites">
-    <meta name="author" content="GhostLink">
+    <title>TutorLink Student Studio</title>
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%234f46e5'/%3E%3Cpath d='M26 12 16 7 6 12l10 5 10-5Z' fill='%23fff'/%3E%3Cpath d='M10 14.5V20c0 1.9 2.7 3.4 6 3.4s6-1.5 6-3.4v-5.5' stroke='%23fff' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
+    <meta name="description" content="TutorLink Student Studio &mdash; live tutoring, practice sets, and study plans in one workspace.">
+    <meta name="keywords" content="tutoring, homework help, study studio, practice sets">
+    <meta name="author" content="TutorLink Learning Studio">
     
     <!-- Open Graph Tags for Social Media & Discord Embeds -->
-    <meta property="og:title" content="GhostLink - Free Proxy Browser">
-    <meta property="og:description" content="Access any website anonymously with GhostLink.">
+    <meta property="og:title" content="TutorLink Student Studio">
+    <meta property="og:description" content="Live tutoring, practice sets, and study plans in one workspace.">
     <meta property="og:url" content="https://github.com/wwebsitesystem-stack/school.textnexus.me/blob/main/ghostlink.html">
     <meta property="og:type" content="website">
     
     <!-- Twitter Card Tags -->
     <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:title" content="GhostLink - Free Proxy Browser">
-    <meta name="twitter:description" content="Access any website anonymously with GhostLink.">
+    <meta name="twitter:title" content="TutorLink Student Studio">
+    <meta name="twitter:description" content="Live tutoring, practice sets, and study plans in one workspace.">
     <meta name="twitter:image" content="https://raw.githubusercontent.com/immcrab/urban-octo-winner/main/og-image.png">
     <script defer src="https://cloud.umami.is/script.js" data-website-id="cd4687b2-c160-4e0c-8b26-5df67d4ea39a"></script>
     <!--- Supabase for total visits --->
@@ -2414,12 +2414,198 @@
             .gl-ad-rail { display: none; }
         }
 
+        /* ============================================================
+           TutorLink student studio — shared chrome with index.html
+           Later in the cascade, so these become the defaults. A saved
+           theme from Settings still wins, exactly as before.
+           ============================================================ */
+        :root {
+            --header-h: 58px;
+            --accent: #8b83ff;
+            --accent-glow: rgba(139, 131, 255, 0.35);
+            --border: rgba(139, 131, 255, 0.12);
+            --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+            --tl-line: rgba(139, 131, 255, 0.16);
+            --tl-brand-1: #6d63ff;
+            --tl-brand-2: #3f37c9;
+        }
+
+        body { padding-top: var(--header-h); }
+        .sidebar { top: var(--header-h); height: calc(100vh - var(--header-h)); }
+
+        .tl-header {
+            position: fixed;
+            inset: 0 0 auto 0;
+            height: var(--header-h);
+            z-index: 950;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 0 18px;
+            background: linear-gradient(180deg, rgba(12, 15, 27, 0.97), rgba(7, 9, 17, 0.95));
+            border-bottom: 1px solid var(--tl-line);
+            backdrop-filter: blur(14px) saturate(140%);
+            -webkit-backdrop-filter: blur(14px) saturate(140%);
+            font-family: var(--font);
+        }
+
+        .tl-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #fff;
+            min-width: 0;
+        }
+
+        .tl-mark {
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            display: grid;
+            place-items: center;
+            background: linear-gradient(150deg, var(--tl-brand-1), var(--tl-brand-2));
+            box-shadow: 0 7px 16px -8px rgba(79, 70, 229, 0.95);
+            flex-shrink: 0;
+            color: #fff;
+        }
+
+        .tl-mark svg { width: 18px; height: 18px; }
+
+        .tl-brand-text {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.1;
+            font-weight: 700;
+            font-size: 0.97rem;
+            letter-spacing: -0.01em;
+            white-space: nowrap;
+        }
+
+        .tl-brand-text small {
+            font-size: 0.59rem;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            margin-top: 2px;
+        }
+
+        .tl-context {
+            display: flex;
+            align-items: center;
+            gap: 9px;
+            padding-left: 14px;
+            border-left: 1px solid var(--tl-line);
+            font-size: 0.72rem;
+            letter-spacing: 0.09em;
+            text-transform: uppercase;
+            color: var(--text-dim);
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .tl-context i {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #12b981;
+            box-shadow: 0 0 0 3px rgba(18, 185, 129, 0.16);
+            font-style: normal;
+        }
+
+        .tl-header-right {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .tl-chip {
+            padding: 5px 11px;
+            border-radius: 999px;
+            background: rgba(139, 131, 255, 0.13);
+            border: 1px solid rgba(139, 131, 255, 0.22);
+            color: #d3cfff;
+            font-size: 0.69rem;
+            font-weight: 650;
+            letter-spacing: 0.03em;
+            white-space: nowrap;
+        }
+
+        .tl-switch {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 7px 13px;
+            border-radius: 9px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(255, 255, 255, 0.045);
+            color: #e8eaf6;
+            text-decoration: none;
+            font-size: 0.77rem;
+            font-weight: 650;
+            white-space: nowrap;
+            transition: border-color 0.15s, background 0.15s, color 0.15s;
+        }
+
+        .tl-switch:hover {
+            border-color: rgba(139, 131, 255, 0.6);
+            background: rgba(139, 131, 255, 0.16);
+            color: #fff;
+        }
+
+        .tl-switch svg { width: 14px; height: 14px; }
+
+        /* the sidebar mark becomes the TutorLink cap */
+        .logo-box { display: flex; align-items: center; justify-content: center; }
+        .logo-box svg { width: 30px; height: 30px; display: block; filter: drop-shadow(0 0 8px var(--accent-glow)); }
+
+        @media (max-width: 720px) {
+            .tl-context, .tl-chip { display: none; }
+        }
+
+        @media (max-width: 460px) {
+            .tl-brand-text small { display: none; }
+            .tl-header { padding: 0 12px; gap: 10px; }
+        }
     </style>
 </head>
 <body>
 
+    <header class="tl-header">
+        <a class="tl-brand" href="index.html" title="TutorLink &mdash; back to role select">
+            <span class="tl-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 9.5 12 4.5 2 9.5l10 5 10-5Z"></path>
+                    <path d="M6.5 12v4.4c0 1.7 2.5 3.1 5.5 3.1s5.5-1.4 5.5-3.1V12"></path>
+                </svg>
+            </span>
+            <span class="tl-brand-text">TutorLink<small>Student studio</small></span>
+        </a>
+
+        <span class="tl-context"><i aria-hidden="true"></i> Fall term &middot; Week 11</span>
+
+        <div class="tl-header-right">
+            <span class="tl-chip">Study space</span>
+            <a class="tl-switch" href="index.html">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                    <path d="M4 9h13l-3.5-3.5"></path>
+                    <path d="M20 15H7l3.5 3.5"></path>
+                </svg>
+                Switch role
+            </a>
+        </div>
+    </header>
+
     <aside class="sidebar" id="main-sidebar">
-        <div class="logo-box" onclick="openReadmeModal()" title="View README" style="cursor:pointer;">◈</div>
+        <div class="logo-box" onclick="openReadmeModal()" title="View README" style="cursor:pointer;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M22 9.5 12 4.5 2 9.5l10 5 10-5Z"></path>
+                <path d="M6.5 12v4.4c0 1.7 2.5 3.1 5.5 3.1s5.5-1.4 5.5-3.1V12"></path>
+            </svg>
+        </div>
         <div class="nav-group" id="sidebar-nav-top"></div>
         <div class="sidebar-bottom" id="sidebar-nav-bottom"></div>
         <div class="sidebar-account-wrap">
@@ -2457,9 +2643,9 @@
             <div class="hero">
                 <h1>Welcome to<br><span id="typewriter"></span></h1>
                 <p class="subtitle" style="color: var(--text-dim); margin-top: 10px;">
-                    GhostLink Network // <span class="total-visits-display" id="total-visits" style="font-size:1em; opacity:1; margin-left:0;">...</span> · <span id="online-count" style="color:var(--accent)">–</span> online
+                    TutorLink Student Studio // <span class="total-visits-display" id="total-visits" style="font-size:1em; opacity:1; margin-left:0;">...</span> · <span id="online-count" style="color:var(--accent)">–</span> studying now
                 </p>
-                <button class="btn-start" onclick="glInitSystems()">INITIALIZE SYSTEMS</button>
+                <button class="btn-start" onclick="glInitSystems()">OPEN STUDY SPACE</button>
             </div>
             <div class="clock-container">
                 <div id="home-clock">00:00:00</div>
@@ -2470,7 +2656,7 @@
                 <div class="gl-ad-banner" id="gl-ad-160x300"></div>
                 <a class="gl-ad-link" id="gl-ad-smartlink" href="https://arwf.org/4/2434e6dc4d557f6c6a101c132bc9422f" target="_blank" rel="sponsored noopener noreferrer">
                     <span class="gl-ad-link-tag">Ad</span>
-                    <span class="gl-ad-link-title">GhostLink partner offer</span>
+                    <span class="gl-ad-link-title">TutorLink partner offer</span>
                     <span class="gl-ad-link-cta">Open &rarr;</span>
                 </a>
             </aside>
@@ -2666,8 +2852,8 @@
                     <h3>Visuals & Background</h3>
                     <div class="input-group">
                         <label>Accent Color</label>
-                        <input type="text" id="theme-color" value="#6ecbff" oninput="applyTheme()">
-                        <input type="color" id="theme-picker" value="#6ecbff" style="margin-top:10px; width:100%; border:none; height:35px; border-radius:8px; cursor:pointer; background: transparent;" oninput="syncColor(this.value)">
+                        <input type="text" id="theme-color" value="#8b83ff" oninput="applyTheme()">
+                        <input type="color" id="theme-picker" value="#8b83ff" style="margin-top:10px; width:100%; border:none; height:35px; border-radius:8px; cursor:pointer; background: transparent;" oninput="syncColor(this.value)">
                     </div>
                     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
                         <div class="input-group">
@@ -2705,9 +2891,10 @@
                     <div class="input-group">
                         <label>Font Family</label>
                         <select id="font-select" onchange="applyTheme(); if(window.__glAch) window.__glAch.onSettingChanged('font')">
-                            <option value="'Courier New', monospace">Retro Mono</option>
+                            <option value="ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Inter, Roboto, Helvetica, Arial, sans-serif">TutorLink Sans</option>
                             <option value="'Inter', sans-serif">Modern Sans</option>
                             <option value="'Segoe UI', sans-serif">System UI</option>
+                            <option value="'Courier New', monospace">Retro Mono</option>
                         </select>
                     </div>
                     <div class="input-group" id="font-custom-section">
@@ -3114,19 +3301,19 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>New Tab | GhostLink</title>
+  <title>New Tab | TutorLink</title>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     :root {
       --bg:            var(--nt-bg,             #000000);
-      --accent:        var(--nt-accent,         #6ecbff);
-      --accent-glow:   var(--nt-accent-glow,    rgba(110, 203, 255, 0.3));
+      --accent:        var(--nt-accent,         #8b83ff);
+      --accent-glow:   var(--nt-accent-glow,    rgba(139, 131, 255, 0.35));
       --text-primary:  var(--nt-text-primary,   #ffffff);
       --text-dim:      var(--nt-text-dim,       #94a3b8);
-      --border:        var(--nt-border,         rgba(110, 203, 255, 0.08));
+      --border:        var(--nt-border,         rgba(139, 131, 255, 0.12));
       --card-bg:       var(--nt-card-bg,        rgba(255, 255, 255, 0.03));
       --input-bg:      var(--nt-input-bg,       rgba(255, 255, 255, 0.05));
-      --font:          var(--nt-font,           'Courier New', monospace);
+      --font:          var(--nt-font,           ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Inter, Roboto, Helvetica, Arial, sans-serif);
       --bg-image:      var(--nt-bg-image,       none);
       --bg-blur:       var(--nt-bg-blur,        0px);
       --bg-brightness: var(--nt-bg-brightness,  100%);
@@ -3484,8 +3671,13 @@
   </div>
   <div class="content">
     <div class="hero-block">
-      <div class="gl-logo">◈</div>
-      <h1 class="gl-title">GhostLink</h1>
+      <div class="gl-logo" style="width:76px;height:76px;margin:0 auto 10px;border-radius:20px;background:linear-gradient(150deg,#6d63ff,#3f37c9);display:grid;place-items:center;box-shadow:0 18px 40px -20px rgba(79,70,229,.9);text-shadow:none;">
+        <svg style="width:42px;height:42px;color:#fff" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 9.5 12 4.5 2 9.5l10 5 10-5Z"></path>
+          <path d="M6.5 12v4.4c0 1.7 2.5 3.1 5.5 3.1s5.5-1.4 5.5-3.1V12"></path>
+        </svg>
+      </div>
+      <h1 class="gl-title">TutorLink</h1>
     </div>
     <form class="search-wrap" id="searchForm">
       <div class="search-box">
@@ -3722,7 +3914,7 @@
     </div>
 
     <script>
-        const DEFAULT_WORDS = ["GhostLink.", "Knowhere.", "modularity.", "blueeeee.", "anonymity.", "the OASIS.", "freedom.", "the hub ;P.", "liminality.", "simulation."];
+        const DEFAULT_WORDS = ["your study studio.", "period 2.", "the tutoring lab.", "practice sets.", "office hours.", "your study plan.", "quiet focus.", "algebra II.", "the writing lab.", "the reading room."];
         let words = JSON.parse(localStorage.getItem('ghostlink_words')) || DEFAULT_WORDS.slice();
 
         const tabPresets = [
@@ -4509,7 +4701,7 @@
                 overlay.style.display = 'none';
                 const f = document.getElementById('afk-cloak-frame');
                 f.removeAttribute('srcdoc'); f.src = 'about:blank';
-                document.title = savedTitle || 'GhostLink';
+                document.title = savedTitle || 'TutorLink Student Studio';
                 applyCloak();
                 reset();
             }
@@ -5063,7 +5255,7 @@
             renderPresets();
         }
 
-        const GL_FAVICON = 'https://cdn.jsdelivr.net/gh/virtuan4-max/ghostlinkhub@main/assets/favicon.png';
+        const GL_FAVICON = 'data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27%3E%3Crect width=%2732%27 height=%2732%27 rx=%279%27 fill=%27%234f46e5%27/%3E%3Cpath d=%27M26 12 16 7 6 12l10 5 10-5Z%27 fill=%27%23fff%27/%3E%3Cpath d=%27M10 14.5V20c0 1.9 2.7 3.4 6 3.4s6-1.5 6-3.4v-5.5%27 stroke=%27%23fff%27 stroke-width=%272%27 fill=%27none%27 stroke-linecap=%27round%27/%3E%3C/svg%3E';
 
         function applyDataUrlAsFavicon(dataUrl) {
             document.querySelectorAll("link[rel*='icon']").forEach(function(l) { l.remove(); });
@@ -5125,7 +5317,7 @@
         function resetToDefaultCloak() {
             document.getElementById('cloak-title').value = '';
             document.getElementById('cloak-icon').value = '';
-            document.title = 'GhostLink';
+            document.title = 'TutorLink Student Studio';
             var accent = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim() || '#6ecbff';
             setDefaultFaviconWithAccent(accent);
             saveConfig();
@@ -5335,13 +5527,13 @@
             if (saved) {
                 document.getElementById('cloak-title').value = saved.title || "";
                 document.getElementById('cloak-icon').value = saved.icon || "";
-                document.getElementById('theme-color').value = saved.color || "#6ecbff";
-                document.getElementById('theme-picker').value = saved.color || "#6ecbff";
+                document.getElementById('theme-color').value = saved.color || "#8b83ff";
+                document.getElementById('theme-picker').value = saved.color || "#8b83ff";
                 document.getElementById('bg-picker').value = saved.bgColor || "#000000";
                 document.getElementById('bg-url').value = saved.bgUrl || "";
                 document.getElementById('bg-blur-input').value = saved.bgBlur || "0";
                 document.getElementById('bg-bright-input').value = saved.bgBright || "100";
-                document.getElementById('font-select').value = saved.font || "'Courier New', monospace";
+                document.getElementById('font-select').value = saved.font || "ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Inter, Roboto, Helvetica, Arial, sans-serif";
                 // Restore custom fonts — use new array format, fall back to legacy single-font fields
                 const fontsToRestore = saved.customFonts?.length
                     ? saved.customFonts
