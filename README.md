@@ -1,7 +1,15 @@
 # GhostLink
 
-Single-page proxy browser. `index.html` is the whole app; `global-refresh-client.js`
-adds the Google account and the Firebase-backed global refresh.
+Single-page proxy browser behind a tutoring-app cover.
+
+- `index.html` — the TutorLink cover page. It asks whether you are a student or a
+  teacher and sends you to the matching workspace.
+- `ghostlink.html` — the actual app (proxy browser, apps, settings, cloud account).
+  This is where the **student** option goes.
+- `teacher.html` — the teacher workspace: overview, classes, assignments, roster.
+  This is where the **teacher** option goes.
+- `global-refresh-client.js` — adds the Google account and the Firebase-backed
+  global refresh to `ghostlink.html`.
 
 ## Cloud account + global refresh
 
@@ -10,12 +18,14 @@ one as TextNexus), so one Google account covers both.
 
 ### Files to deploy
 
-Upload both files to the same folder:
+Upload all of them to the same folder:
 
 - `index.html`
+- `ghostlink.html`
+- `teacher.html`
 - `global-refresh-client.js`
 
-`index.html` loads the module as `./global-refresh-client.js`, so
+`ghostlink.html` loads the module as `./global-refresh-client.js`, so
 `https://textnexus.me/ghostlink.html` needs `https://textnexus.me/global-refresh-client.js`.
 
 ### Firebase console checklist

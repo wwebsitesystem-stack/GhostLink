@@ -3,367 +3,650 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GhostLink — Under Maintenance</title>
-    <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/virtuan4-max/ghostlinkhub@main/assets/favicon.png">
-    <meta name="description" content="GhostLink is temporarily offline for scheduled maintenance. We'll be back shortly.">
-    <meta name="robots" content="noindex">
-
-    <!-- Open Graph Tags for Social Media & Discord Embeds -->
-    <meta property="og:title" content="GhostLink — Under Maintenance">
-    <meta property="og:description" content="GhostLink is temporarily offline for scheduled maintenance. We'll be back shortly.">
-    <meta property="og:type" content="website">
+    <title>TutorLink — Live Tutoring &amp; Homework Help</title>
+    <meta name="description" content="TutorLink connects students with live tutors, practice sets, and teacher-built study plans. Join a session from any browser.">
+    <meta name="theme-color" content="#f7f8fc">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='9' fill='%234f46e5'/%3E%3Cpath d='M26 12 16 7 6 12l10 5 10-5Z' fill='%23fff'/%3E%3Cpath d='M10 14.5V20c0 1.9 2.7 3.4 6 3.4s6-1.5 6-3.4v-5.5' stroke='%23fff' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E">
 
     <style>
         :root {
-            --bg: #000000;
-            --accent: #6ecbff;
-            --accent-glow: rgba(110, 203, 255, 0.3);
-            --text-primary: #ffffff;
-            --text-dim: #94a3b8;
-            --border: rgba(110, 203, 255, 0.08);
-            --font: 'Courier New', monospace;
+            --bg: #f7f8fc;
+            --card: #ffffff;
+            --ink: #141a2e;
+            --muted: #5b647a;
+            --line: #e5e8f1;
+            --brand: #4f46e5;
+            --brand-dark: #3f37c9;
+            --brand-soft: #eef0ff;
+            --teal: #0f9b8e;
+            --teal-soft: #e6f7f5;
+            --amber: #b45309;
+            --radius: 18px;
+            --shadow-sm: 0 1px 2px rgba(20, 26, 46, 0.05), 0 8px 24px -16px rgba(20, 26, 46, 0.22);
+            --shadow-lg: 0 1px 2px rgba(20, 26, 46, 0.04), 0 30px 60px -30px rgba(20, 26, 46, 0.30);
+            --font: ui-sans-serif, system-ui, -apple-system, "Segoe UI", Inter, Roboto, Helvetica, Arial, sans-serif;
+            --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
-        html, body { min-height: 100%; }
+        html { scroll-behavior: smooth; }
 
         body {
-            background-color: var(--bg);
-            color: var(--text-primary);
+            background: var(--bg);
+            color: var(--ink);
             font-family: var(--font);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            padding: 40px 20px;
+            -webkit-font-smoothing: antialiased;
+            line-height: 1.55;
             position: relative;
             overflow-x: hidden;
         }
 
-        /* Soft accent glow */
+        a { color: inherit; }
+
+        /* soft colour wash behind the fold */
         body::before {
             content: "";
-            position: fixed;
-            inset: 0;
+            position: absolute;
+            inset: 0 0 auto 0;
+            height: 760px;
             background:
-                radial-gradient(ellipse at 50% -10%, rgba(110, 203, 255, 0.12), transparent 60%),
-                radial-gradient(ellipse at 50% 110%, rgba(110, 203, 255, 0.06), transparent 55%);
+                radial-gradient(760px 380px at 82% 4%, rgba(79, 70, 229, 0.13), transparent 70%),
+                radial-gradient(620px 340px at 8% 0%, rgba(15, 155, 142, 0.11), transparent 70%),
+                linear-gradient(180deg, #ffffff 0%, rgba(255, 255, 255, 0) 72%);
             pointer-events: none;
             z-index: 0;
         }
 
-        /* Faint blueprint grid */
-        body::after {
-            content: "";
-            position: fixed;
-            inset: 0;
-            background-image:
-                linear-gradient(var(--border) 1px, transparent 1px),
-                linear-gradient(90deg, var(--border) 1px, transparent 1px);
-            background-size: 44px 44px;
-            -webkit-mask-image: radial-gradient(ellipse at 50% 40%, #000 15%, transparent 72%);
-            mask-image: radial-gradient(ellipse at 50% 40%, #000 15%, transparent 72%);
-            opacity: 0.7;
-            pointer-events: none;
-            z-index: 0;
-        }
-
-        .maintenance {
+        .wrap {
+            width: min(1160px, 100% - 48px);
+            margin-inline: auto;
             position: relative;
             z-index: 1;
-            width: 100%;
-            max-width: 660px;
-            text-align: center;
-            animation: rise 0.6s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
-        @keyframes rise {
-            from { opacity: 0; transform: translateY(14px); }
-            to { opacity: 1; transform: translateY(0); }
+        /* ---------------------------------------------------------- header -- */
+
+        .site-header {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            gap: 28px;
+            padding: 22px 0;
         }
 
-        .logo {
-            font-size: 44px;
-            line-height: 1;
-            color: var(--accent);
-            text-shadow: 0 0 18px var(--accent), 0 0 42px var(--accent-glow);
-            animation: breathe 3.2s ease-in-out infinite;
-        }
-
-        @keyframes breathe {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.55; }
-        }
-
-        .wordmark {
-            margin-top: 14px;
-            font-size: 0.95rem;
-            font-weight: bold;
-            letter-spacing: 0.55em;
-            text-indent: 0.55em;
-            text-transform: uppercase;
-            color: var(--accent);
-        }
-
-        .status-pill {
+        .brand {
             display: inline-flex;
             align-items: center;
-            gap: 9px;
-            margin-top: 26px;
-            padding: 7px 15px;
-            border: 1px solid rgba(110, 203, 255, 0.28);
-            border-radius: 999px;
-            background: rgba(110, 203, 255, 0.06);
-            color: var(--accent);
-            font-size: 0.66rem;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            white-space: nowrap;
+            gap: 11px;
+            text-decoration: none;
+            font-weight: 750;
+            font-size: 1.12rem;
+            letter-spacing: -0.02em;
         }
 
-        .status-dot {
-            width: 7px;
-            height: 7px;
-            border-radius: 50%;
-            background: var(--accent);
-            box-shadow: 0 0 8px var(--accent);
-            animation: blink 1.6s ease-in-out infinite;
+        .brand-mark {
+            width: 36px;
+            height: 36px;
+            border-radius: 11px;
+            background: linear-gradient(150deg, #6d63ff, #3f37c9);
+            display: grid;
+            place-items: center;
+            color: #fff;
+            box-shadow: 0 8px 18px -8px rgba(79, 70, 229, 0.75);
             flex-shrink: 0;
         }
 
-        @keyframes blink {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.2; }
+        .brand-mark svg { width: 21px; height: 21px; }
+
+        .brand small {
+            display: block;
+            font-size: 0.62rem;
+            font-weight: 600;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--muted);
+            line-height: 1.2;
+            margin-top: 1px;
         }
 
-        h1 {
+        .site-nav {
+            display: flex;
+            align-items: center;
+            gap: 26px;
+            margin-left: 18px;
+            font-size: 0.9rem;
+            color: var(--muted);
+        }
+
+        .site-nav a { text-decoration: none; transition: color 0.15s; }
+        .site-nav a:hover { color: var(--brand); }
+
+        .header-actions {
+            margin-left: auto;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            font: inherit;
+            font-size: 0.88rem;
+            font-weight: 650;
+            text-decoration: none;
+            cursor: pointer;
+            transition: transform 0.15s, box-shadow 0.15s, background 0.15s, border-color 0.15s;
+            white-space: nowrap;
+        }
+
+        .btn-ghost { border-color: var(--line); background: #fff; color: var(--ink); }
+        .btn-ghost:hover { border-color: #cfd4e3; box-shadow: var(--shadow-sm); }
+
+        .btn-primary {
+            background: var(--brand);
+            color: #fff;
+            box-shadow: 0 10px 22px -12px rgba(79, 70, 229, 0.9);
+        }
+        .btn-primary:hover { background: var(--brand-dark); transform: translateY(-1px); }
+
+        /* ------------------------------------------------------------ hero -- */
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+            gap: 56px;
+            align-items: center;
+            padding: 54px 0 26px;
+        }
+
+        .eyebrow {
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            padding: 6px 13px 6px 9px;
+            border-radius: 999px;
+            background: #fff;
+            border: 1px solid var(--line);
+            font-size: 0.72rem;
+            font-weight: 650;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--muted);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .live-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: #12b981;
+            box-shadow: 0 0 0 3px rgba(18, 185, 129, 0.16);
+        }
+
+        .hero h1 {
             margin-top: 22px;
-            font-size: clamp(1.75rem, 6vw, 3rem);
-            line-height: 1.12;
-            letter-spacing: -0.01em;
+            font-size: clamp(2.35rem, 4.4vw, 3.6rem);
+            line-height: 1.06;
+            letter-spacing: -0.035em;
+            font-weight: 800;
+            max-width: 15ch;
+        }
+
+        .hero h1 em {
+            font-style: normal;
+            color: var(--brand);
+            position: relative;
+            white-space: nowrap;
+        }
+
+        .hero h1 em::after {
+            content: "";
+            position: absolute;
+            left: 2px;
+            right: 2px;
+            bottom: 0.06em;
+            height: 0.28em;
+            background: rgba(79, 70, 229, 0.16);
+            border-radius: 4px;
+            z-index: -1;
         }
 
         .lede {
-            margin: 16px auto 0;
-            max-width: 520px;
-            color: var(--text-dim);
-            font-size: clamp(0.88rem, 2.2vw, 1rem);
-            line-height: 1.75;
+            margin-top: 20px;
+            max-width: 47ch;
+            color: var(--muted);
+            font-size: 1.03rem;
         }
 
-        .lede strong { color: var(--text-primary); font-weight: bold; }
-
-        .progress {
-            position: relative;
-            width: 100%;
-            max-width: 420px;
-            height: 3px;
-            margin: 32px auto 0;
-            border-radius: 999px;
-            background: rgba(255, 255, 255, 0.06);
-            overflow: hidden;
-        }
-
-        .progress span {
-            position: absolute;
-            top: 0;
-            left: -40%;
-            width: 40%;
-            height: 100%;
-            border-radius: 999px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            box-shadow: 0 0 12px var(--accent-glow);
-            animation: sweep 2.6s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-        }
-
-        @keyframes sweep {
-            0% { left: -40%; }
-            100% { left: 100%; }
-        }
-
-        .meta {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 14px;
-            margin-top: 34px;
-            padding-top: 22px;
-            border-top: 1px solid var(--border);
-        }
-
-        .meta div {
+        .hero-stats {
             display: flex;
-            flex-direction: column;
-            gap: 7px;
-            min-width: 0;
-        }
-
-        .meta .label {
-            font-size: 0.58rem;
-            letter-spacing: 0.22em;
-            text-transform: uppercase;
-            color: var(--text-dim);
-        }
-
-        .meta .value {
-            font-size: 0.85rem;
-            color: var(--text-primary);
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .meta .value.accent { color: var(--accent); }
-
-        .recheck {
-            margin-top: 30px;
-            padding: 13px 30px;
-            border: 1px solid var(--accent);
-            border-radius: 8px;
-            background: transparent;
-            color: var(--accent);
-            font-family: var(--font);
-            font-size: 0.72rem;
-            font-weight: bold;
-            letter-spacing: 0.2em;
-            text-transform: uppercase;
-            cursor: pointer;
-            transition: background 0.2s, color 0.2s, box-shadow 0.2s;
-        }
-
-        .recheck:hover {
-            background: var(--accent);
-            color: #000;
-            box-shadow: 0 0 22px var(--accent-glow);
-        }
-
-        .recheck:focus-visible {
-            outline: 2px solid var(--accent);
-            outline-offset: 3px;
-        }
-
-        .hint {
-            margin-top: 14px;
-            font-size: 0.66rem;
-            letter-spacing: 0.1em;
-            color: var(--text-dim);
-            opacity: 0.75;
-        }
-
-        .footer {
-            position: relative;
-            z-index: 1;
-            margin-top: 46px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            font-size: 0.68rem;
-            letter-spacing: 0.16em;
-            text-transform: uppercase;
-            color: var(--text-dim);
             flex-wrap: wrap;
+            gap: 30px;
+            margin-top: 34px;
+            padding-top: 24px;
+            border-top: 1px solid var(--line);
         }
 
-        .footer a {
-            color: var(--text-dim);
+        .hero-stats div { display: flex; flex-direction: column; gap: 2px; }
+
+        .hero-stats strong {
+            font-size: 1.28rem;
+            letter-spacing: -0.02em;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .hero-stats span {
+            font-size: 0.72rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        /* ------------------------------------------------------- role card -- */
+
+        .role-card {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 24px;
+            padding: 28px;
+            box-shadow: var(--shadow-lg);
+            position: relative;
+        }
+
+        .role-card::before {
+            content: "";
+            position: absolute;
+            inset: -1px -1px auto -1px;
+            height: 4px;
+            border-radius: 24px 24px 0 0;
+            background: linear-gradient(90deg, var(--brand), #7c73ff 45%, var(--teal));
+        }
+
+        .role-card-head { margin-bottom: 20px; }
+
+        .chips { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 14px; }
+
+        .chip {
+            font-size: 0.66rem;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 4px 9px;
+            border-radius: 6px;
+            background: var(--brand-soft);
+            color: var(--brand-dark);
+        }
+
+        .chip.teal { background: var(--teal-soft); color: var(--teal); }
+
+        .role-card h2 {
+            font-size: 1.42rem;
+            letter-spacing: -0.025em;
+            line-height: 1.22;
+        }
+
+        .role-card > .role-card-head > p {
+            margin-top: 7px;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .role-list { display: grid; gap: 12px; }
+
+        .role {
+            display: grid;
+            grid-template-columns: 44px minmax(0, 1fr) 18px;
+            align-items: center;
+            gap: 15px;
+            padding: 16px;
+            border: 1px solid var(--line);
+            border-radius: 14px;
+            background: #fdfdfa;
             text-decoration: none;
-            transition: color 0.2s;
+            transition: border-color 0.16s, box-shadow 0.16s, transform 0.16s, background 0.16s;
         }
 
-        .footer a:hover { color: var(--accent); }
+        .role:hover,
+        .role:focus-visible {
+            border-color: rgba(79, 70, 229, 0.45);
+            background: #fff;
+            box-shadow: 0 12px 26px -18px rgba(79, 70, 229, 0.65);
+            transform: translateY(-1px);
+            outline: none;
+        }
 
-        .footer .sep { opacity: 0.35; }
+        .role:focus-visible { box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.18); }
 
-        @media (max-width: 520px) {
-            .meta { grid-template-columns: 1fr; gap: 18px; }
-            .meta div { align-items: center; }
-            .wordmark { letter-spacing: 0.4em; text-indent: 0.4em; }
+        .role-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: grid;
+            place-items: center;
+            background: var(--brand-soft);
+            color: var(--brand-dark);
+        }
+
+        .role.teacher .role-icon { background: var(--teal-soft); color: var(--teal); }
+        .role-icon svg { width: 22px; height: 22px; }
+
+        .role strong {
+            display: block;
+            font-size: 1rem;
+            letter-spacing: -0.01em;
+        }
+
+        .role span.role-sub {
+            display: block;
+            color: var(--muted);
+            font-size: 0.82rem;
+            margin-top: 2px;
+        }
+
+        .role-arrow {
+            color: #b9bfd0;
+            font-size: 1.1rem;
+            transition: transform 0.16s, color 0.16s;
+        }
+
+        .role:hover .role-arrow { color: var(--brand); transform: translateX(2px); }
+        .role.teacher:hover .role-arrow { color: var(--teal); }
+
+        .role-note {
+            margin-top: 18px;
+            padding-top: 16px;
+            border-top: 1px dashed var(--line);
+            font-size: 0.78rem;
+            color: var(--muted);
+        }
+
+        .role-note a { color: var(--brand-dark); font-weight: 600; text-decoration: none; }
+        .role-note a:hover { text-decoration: underline; }
+
+        /* --------------------------------------------------------- sections -- */
+
+        section.band { padding: 54px 0; }
+
+        .section-head { max-width: 52ch; }
+
+        .section-head .kicker {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--brand);
+        }
+
+        .section-head h2 {
+            margin-top: 8px;
+            font-size: clamp(1.5rem, 2.5vw, 2rem);
+            letter-spacing: -0.03em;
+            line-height: 1.2;
+        }
+
+        .section-head p { margin-top: 10px; color: var(--muted); }
+
+        .steps {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 30px;
+        }
+
+        .step {
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .step .num {
+            display: inline-grid;
+            place-items: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
+            background: var(--brand-soft);
+            color: var(--brand-dark);
+            font-family: var(--mono);
+            font-size: 0.82rem;
+            font-weight: 700;
+        }
+
+        .step h3 { margin-top: 14px; font-size: 1.02rem; letter-spacing: -0.01em; }
+        .step p { margin-top: 6px; color: var(--muted); font-size: 0.9rem; }
+
+        .subjects {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 24px;
+        }
+
+        .subject {
+            padding: 9px 15px;
+            border-radius: 999px;
+            border: 1px solid var(--line);
+            background: #fff;
+            font-size: 0.86rem;
+            font-weight: 600;
+            color: #39415a;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .subject span { color: var(--muted); font-weight: 500; }
+
+        /* ----------------------------------------------------------- footer -- */
+
+        .site-footer {
+            border-top: 1px solid var(--line);
+            margin-top: 30px;
+            padding: 30px 0 44px;
+        }
+
+        .footer-inner {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 16px;
+            justify-content: space-between;
+            font-size: 0.82rem;
+            color: var(--muted);
+        }
+
+        .footer-links { display: flex; flex-wrap: wrap; gap: 20px; }
+        .footer-links a { text-decoration: none; }
+        .footer-links a:hover { color: var(--brand); }
+
+        /* ------------------------------------------------------- responsive -- */
+
+        @media (max-width: 940px) {
+            .hero {
+                grid-template-columns: minmax(0, 1fr);
+                gap: 36px;
+                padding-top: 30px;
+            }
+            .hero h1 { max-width: 20ch; }
+            .site-nav { display: none; }
+            .steps { grid-template-columns: minmax(0, 1fr); }
+        }
+
+        @media (max-width: 620px) {
+            .wrap { width: min(1160px, 100% - 32px); }
+            .header-actions .btn-ghost { display: none; }
+            .role-card { padding: 22px; border-radius: 20px; }
+            .hero-stats { gap: 20px; }
+            .hero-stats strong { font-size: 1.12rem; }
+            .btn { padding: 10px 15px; font-size: 0.84rem; }
         }
 
         @media (prefers-reduced-motion: reduce) {
-            *, *::before, *::after { animation: none !important; }
-            .maintenance { animation: none; }
-            .progress span { left: 30%; }
+            html { scroll-behavior: auto; }
+            * { transition: none !important; }
         }
     </style>
 </head>
 <body>
 
-    <main class="maintenance">
-        <div class="logo" aria-hidden="true">&#9672;</div>
-        <div class="wordmark">GhostLink</div>
+    <header class="wrap site-header">
+        <a class="brand" href="index.html" aria-label="TutorLink home">
+            <span class="brand-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 9.5 12 4.5 2 9.5l10 5 10-5Z"></path>
+                    <path d="M6.5 12v4.4c0 1.7 2.5 3.1 5.5 3.1s5.5-1.4 5.5-3.1V12"></path>
+                </svg>
+            </span>
+            <span>TutorLink<small>Learning Studio</small></span>
+        </a>
 
-        <div class="status-pill">
-            <span class="status-dot" aria-hidden="true"></span>
-            System maintenance
+        <nav class="site-nav" aria-label="Primary">
+            <a href="#how">How it works</a>
+            <a href="#subjects">Subjects</a>
+            <a href="#tutors">For tutors</a>
+            <a href="#plans">Plans</a>
+        </nav>
+
+        <div class="header-actions">
+            <a class="btn btn-ghost" href="#role">Sign in</a>
+            <a class="btn btn-primary" href="#role">Get started</a>
         </div>
+    </header>
 
-        <h1>We're under maintenance.</h1>
-
-        <p class="lede">
-            GhostLink is temporarily offline while we upgrade the network and ship some fixes.
-            The proxy browser and all tools will be back shortly &mdash;
-            <strong>thanks for your patience.</strong>
-        </p>
-
-        <div class="progress" role="progressbar" aria-label="Maintenance in progress" aria-valuetext="In progress">
-            <span></span>
-        </div>
-
-        <div class="meta">
+    <main>
+        <section class="wrap hero">
             <div>
-                <span class="label">Status</span>
-                <span class="value accent">Maintenance</span>
-            </div>
-            <div>
-                <span class="label">Estimated return</span>
-                <span class="value">Back soon</span>
-            </div>
-            <div>
-                <span class="label">Local time</span>
-                <span class="value" id="clock">--:--:--</span>
-            </div>
-        </div>
+                <span class="eyebrow"><span class="live-dot" aria-hidden="true"></span> 42 tutors online</span>
 
-        <button class="recheck" id="recheck" type="button">Recheck status</button>
-        <p class="hint" id="hint">Page last checked just now</p>
+                <h1>Tutoring that fits <em>between the bells.</em></h1>
+
+                <p class="lede">
+                    Live homework help, practice sets, and study plans built by your teachers &mdash;
+                    all in one place, on any device, no downloads required.
+                </p>
+
+                <div class="hero-stats">
+                    <div><strong>12,400+</strong><span>Students helped</span></div>
+                    <div><strong>4.9 / 5</strong><span>Session rating</span></div>
+                    <div><strong>18 min</strong><span>Avg. wait time</span></div>
+                </div>
+            </div>
+
+            <aside class="role-card" id="role" aria-labelledby="role-title">
+                <div class="role-card-head">
+                    <div class="chips">
+                        <span class="chip">Fall term</span>
+                        <span class="chip teal">Beta</span>
+                    </div>
+                    <h2 id="role-title">How are you joining today?</h2>
+                    <p>Choose a role and we&rsquo;ll open the right workspace for you.</p>
+                </div>
+
+                <div class="role-list">
+                    <a class="role student" href="ghostlink.html">
+                        <span class="role-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M22 9.5 12 4.5 2 9.5l10 5 10-5Z"></path>
+                                <path d="M6.5 12v4.4c0 1.7 2.5 3.1 5.5 3.1s5.5-1.4 5.5-3.1V12"></path>
+                            </svg>
+                        </span>
+                        <span>
+                            <strong>I&rsquo;m a student</strong>
+                            <span class="role-sub">Homework help, practice sets &amp; study plans</span>
+                        </span>
+                        <span class="role-arrow" aria-hidden="true">&rarr;</span>
+                    </a>
+
+                    <a class="role teacher" href="teacher.html">
+                        <span class="role-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
+                                <rect x="3" y="4" width="18" height="12.5" rx="2.2"></rect>
+                                <path d="M12 16.5V21"></path>
+                                <path d="M8.5 21h7"></path>
+                                <path d="M7.5 12.2l2.6-2.7 2 1.9 3.3-4"></path>
+                            </svg>
+                        </span>
+                        <span>
+                            <strong>I&rsquo;m a teacher</strong>
+                            <span class="role-sub">Classes, assignments &amp; student progress</span>
+                        </span>
+                        <span class="role-arrow" aria-hidden="true">&rarr;</span>
+                    </a>
+                </div>
+
+                <p class="role-note">
+                    Accounts are created by your school. <a href="#role">Need help signing in?</a>
+                </p>
+            </aside>
+        </section>
+
+        <section class="wrap band" id="how">
+            <div class="section-head">
+                <span class="kicker">How it works</span>
+                <h2>Three steps from stuck to sorted.</h2>
+                <p>No scheduling calls, no appointment windows. Open a session when you need one.</p>
+            </div>
+
+            <div class="steps">
+                <article class="step">
+                    <span class="num">01</span>
+                    <h3>Pick your role</h3>
+                    <p>Students get the study workspace. Teachers get their classes, rosters, and assignment queue.</p>
+                </article>
+                <article class="step">
+                    <span class="num">02</span>
+                    <h3>Join a live session</h3>
+                    <p>Share the problem you&rsquo;re on and a tutor joins the room &mdash; whiteboard, chat, and screen share included.</p>
+                </article>
+                <article class="step">
+                    <span class="num">03</span>
+                    <h3>Track what stuck</h3>
+                    <p>Every session ends with a recap and a short practice set, so progress shows up in the gradebook.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="wrap band" id="subjects">
+            <div class="section-head">
+                <span class="kicker">Subjects</span>
+                <h2>Help across the whole timetable.</h2>
+                <p>Coverage from middle school through AP and dual credit.</p>
+            </div>
+
+            <div class="subjects">
+                <span class="subject">Algebra II <span>&middot; 9 tutors</span></span>
+                <span class="subject">Biology <span>&middot; 7 tutors</span></span>
+                <span class="subject">Chemistry <span>&middot; 6 tutors</span></span>
+                <span class="subject">English Lit <span>&middot; 8 tutors</span></span>
+                <span class="subject">US History <span>&middot; 5 tutors</span></span>
+                <span class="subject">Spanish <span>&middot; 4 tutors</span></span>
+                <span class="subject">Computer Science <span>&middot; 5 tutors</span></span>
+                <span class="subject">Physics <span>&middot; 4 tutors</span></span>
+                <span class="subject">Writing Lab <span>&middot; 6 tutors</span></span>
+            </div>
+        </section>
     </main>
 
-    <footer class="footer">
-        <a href="https://github.com/immcrab/urban-octo-winner" target="_blank" rel="noopener noreferrer">GitHub</a>
-        <span class="sep">/</span>
-        <a href="https://www.youtube.com/@imcrab.online" target="_blank" rel="noopener noreferrer">YouTube</a>
-        <span class="sep">/</span>
-        <span>GhostLink Network</span>
+    <footer class="site-footer">
+        <div class="wrap footer-inner">
+            <span>&copy; 2026 TutorLink Learning Studio</span>
+            <nav class="footer-links" aria-label="Footer">
+                <a href="#role">Help center</a>
+                <a href="#role">Student safety</a>
+                <a href="#role">Privacy</a>
+                <a href="#role">Terms</a>
+            </nav>
+        </div>
     </footer>
-
-    <script>
-        (function () {
-            var clock = document.getElementById('clock');
-
-            function tick() {
-                var now = new Date();
-                clock.textContent = now.toLocaleTimeString([], {
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    second: '2-digit',
-                    hour12: false
-                });
-            }
-
-            tick();
-            setInterval(tick, 1000);
-
-            document.getElementById('recheck').addEventListener('click', function () {
-                document.getElementById('hint').textContent = 'Rechecking...';
-                var url = new URL(window.location.href);
-                url.searchParams.set('t', Date.now().toString());
-                window.location.replace(url.toString());
-            });
-        })();
-    </script>
 
 </body>
 </html>
