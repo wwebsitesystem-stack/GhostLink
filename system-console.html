@@ -179,7 +179,7 @@
             </button>
             <p id="gate-msg" class="gate-msg" role="status" aria-live="polite"></p>
             <div class="gate-links">
-                <a href="/">Back to GhostLink</a>
+                <a href="./">Back to GhostLink</a>
             </div>
         </div>
     </div>
@@ -195,7 +195,7 @@
                 <p>System control &middot; <span id="who">&mdash;</span></p>
             </div>
             <span id="live-pill" class="pill">connecting</span>
-            <a class="exit" href="/">Exit</a>
+            <a class="exit" href="./">Exit</a>
         </header>
 
         <main>
@@ -408,7 +408,7 @@
             const params = new URLSearchParams({ mode: mode.id, since: String(Date.now()) });
             const draft = messageEl.value.trim();
             if (draft) params.set("message", draft);
-            previewFrame.src = `/${mode.page}?${params.toString()}`;
+            previewFrame.src = `./${mode.page}?${params.toString()}`;
             previewTitle.textContent = mode.label;
             preview.classList.remove("hidden");
             preview.setAttribute("aria-hidden", "false");

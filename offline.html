@@ -129,7 +129,7 @@
             </div>
 
             <div class="actions">
-                <a class="btn primary" href="/system-console.html" rel="noopener">
+                <a class="btn primary" href="system-console.html" rel="noopener">
                     <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     Staff access
                 </a>
@@ -178,7 +178,7 @@
                 fetch(DB, { cache: "no-store" }).then(function (r) { return r.ok ? r.json() : null; }).then(function (s) {
                     if (!s) return;
                     var cur = String(s.status || "").toLowerCase() || (s.maintenance === true ? "maintenance" : "operational");
-                    if (cur !== MODE && window.top === window.self) location.href = "/";
+                    if (cur !== MODE && window.top === window.self) location.href = "./";
                 }).catch(function () {});
             }
             setInterval(check, 20000);

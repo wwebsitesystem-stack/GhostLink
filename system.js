@@ -244,7 +244,9 @@ function paint() {
     if (blocked && frame) {
         // Every blocking mode has its own page. Load it full-viewport so visitors
         // get the real, editable notice instead of a generic card.
-        const page = def.page ? `/${def.page}` : "/maintenance.html";
+        // Relative so the notice resolves under whatever path the app is served
+        // from (GhostLink lives at /GhostLink/ on GitHub Pages).
+        const page = def.page || "maintenance.html";
         const key = `${page}|${currentState?.message || ""}`;
         if (frame.dataset.key !== key) {
             const qs = new URLSearchParams({
