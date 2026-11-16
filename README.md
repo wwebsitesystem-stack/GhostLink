@@ -1,21 +1,18 @@
 # GhostLink
 
-Nexus is offline for maintenance. Every page in this folder serves the same
-notice: **Nexus is undergoing maintenance. We have no idea how long this will
-take.**
+Single-page proxy browser behind a tutoring-app cover.
 
-- `index.html` — the maintenance notice served at the site root.
-- `ghostlink.html` — the same maintenance notice. It was the TutorLink Student
-  studio (the proxy browser app: apps, settings, cloud account).
-- `teacher.html` — the same maintenance notice. It was the teacher workspace
-  (overview, classes, assignments, roster).
-- `global-refresh-client.js` — the Google account and Firebase global-refresh
-  module the app loads. Nothing references it while the app pages show the
-  notice.
-
-The app pages themselves are still in git history. Restore them with
-`git checkout 4988bd1 -- ghostlink.html teacher.html`. The notes below describe
-the app as it runs once those pages are restored.
+- `index.html` — the TutorLink cover page. It asks whether you are a student or a
+  teacher and sends you to the matching workspace.
+- `ghostlink.html` — the actual app (proxy browser, apps, settings, cloud account),
+  presented as the **TutorLink Student studio**. This is where the **student**
+  option goes. It carries the same TutorLink header (brand mark, term chip,
+  *Switch role*) and the cover's indigo/type defaults, so the two pages read as
+  one product. A theme saved in Settings still overrides those defaults.
+- `teacher.html` — the teacher workspace: overview, classes, assignments, roster.
+  This is where the **teacher** option goes.
+- `global-refresh-client.js` — adds the Google account and the Firebase-backed
+  global refresh to `ghostlink.html`.
 
 ## Cloud account + global refresh
 
