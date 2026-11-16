@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en" class="dark" data-nexus="7.0">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Nexus Admin | System Control</title>
+    <link rel="icon" href="/logo.svg" type="image/svg+xml">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@phosphor-icons/web@2.1.2/src/regular/style.css">
+    <link rel="stylesheet" href="tailwind.css?v=2026-11-16d">
+<style>
+        body { background: #0a0a0a; color: #ededed; font-family: Inter, sans-serif; }
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 6px; }
+        .mode-card {
+            border: 1px solid #262626; background: #121212; border-radius: 12px;
+            padding: 14px; text-align: left; transition: all .15s ease; position: relative;
+        }
+        .mode-card:hover { border-color: #3a3a3a; }
+        .mode-card[aria-pressed="true"] { border-color: #ededed; background: #1a1a1a; }
+        .mode-card[aria-pressed="true"]::after {
+            content: ""; position: absolute; top: 12px; right: 12px;
+            width: 7px; height: 7px; border-radius: 999px; background: #ededed;
+        }
+        .mode-dot { width: 7px; height: 7px; border-radius: 999px; display: inline-block; }
+        .switch { position: relative; width: 42px; height: 24px; flex: 0 0 auto; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch span { position: absolute; inset: 0; cursor: pointer; background: #262626; border-radius: 999px; transition: background .18s ease; }
+        .switch span::before {
+            content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px;
+            background: #a1a1aa; border-radius: 999px; transition: transform .18s ease, background .18s ease;
+        }
+        .switch input:checked + span { background: #ededed; }
+        .switch input:checked + span::before { transform: translateX(18px); background: #0a0a0a; }
+        .switch input:focus-visible + span { outline: 2px solid #ededed; outline-offset: 2px; }
+        textarea, input[type="text"], input[type="url"], select {
+            width: 100%; background: #0a0a0a; border: 1px solid #262626; color: #ededed;
+            border-radius: 9px; padding: 9px 12px; font-size: 12.5px; line-height: 1.6;
+        }
+        textarea:focus, input:focus, select:focus { outline: none; border-color: #4a4a4a; }
+        .pill { font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase; padding: 3px 9px; border-radius: 999px; border: 1px solid; }
+        .is-hidden { display: none !important; }
+        table { border-collapse: collapse; width: 100%; }
+        th { text-align: left; font-size: 9.5px; text-transform: uppercase; letter-spacing: .1em; color: #a1a1aa; font-weight: 700; padding: 8px 10px; border-bottom: 1px solid #262626; }
+        td { padding: 9px 10px; border-bottom: 1px solid #1c1c1c; font-size: 12px; }
+        tr:last-child td { border-bottom: 0; }
+        .bar { height: 6px; border-radius: 999px; background: #262626; overflow: hidden; }
+        .bar > i { display: block; height: 100%; background: #ededed; border-radius: 999px; }
+        .mode-card { cursor: pointer; }
+        .mode-card:focus-visible { outline: 2px solid #ededed; outline-offset: 2px; }
+        .mode-preview {
+            margin-top: 10px; display: inline-flex; align-items: center; gap: 5px;
+            font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+            color: #a1a1aa; background: #0a0a0a; border: 1px solid #262626;
+            border-radius: 7px; padding: 4px 8px; transition: color .15s ease, border-color .15s ease;
+        }
+        .mode-preview:hover { color: #ededed; border-color: #3a3a3a; }
+        .mode-preview i { font-size: 11px; letter-spacing: 0; }
+        #preview { position: fixed; inset: 0; z-index: 60; background: #0a0a0a; display: flex; flex-direction: column; }
+        #preview .preview-bar { display: flex; align-items: center; gap: 10px; padding: 8px 12px; border-bottom: 1px solid #262626; background: #121212; flex-wrap: wrap; }
+        #preview iframe { flex: 1; width: 100%; border: 0; background: #0a0a0a; }
+    </style>
+    <link rel="stylesheet" href="v7.css?v=2026-11-09a">
+    <script src="season.js?v=2026-11-11-turkey"></script>
+</head>
+<body class="min-h-screen">
+
+    <!-- Sign-in gate -->
+    <div id="gate" class="min-h-screen flex items-center justify-center p-6">
+        <div class="w-full max-w-sm rounded-2xl border border-border bg-surface p-7 text-center">
+            <div class="w-11 h-11 rounded-xl bg-surfaceHover border border-border mx-auto flex items-center justify-center mb-4">
+                <i class="ph ph-shield-check text-lg"></i>
+            </div>
+            <h1 class="text-sm font-bold">Nexus admin</h1>
+            <p class="text-[11px] text-textMuted mt-1.5 mb-5">Staff access only. Sign in with an approved Google account.</p>
+            <button id="gate-signin" class="w-full rounded-lg bg-[#ededed] text-black text-[12px] font-bold py-2.5 inline-flex items-center justify-center gap-2 hover:opacity-90 transition-opacity">
+                <i class="ph ph-google-logo"></i> Sign in with Google
+            </button>
+            <p id="gate-msg" class="text-[11px] mt-3 text-textMuted" role="status"></p>
+            <a href="/system-console.html" target="_top" class="inline-block mt-2 text-[10.5px] text-textMuted hover:text-textMain">Trouble signing in? Open the full page</a>
+            <a href="/index.html" class="inline-block mt-5 text-[11px] text-textMuted hover:text-textMain">Back to Nexus</a>
+        </div>
+    </div>
+
+    <!-- Panel -->
+    <div id="panel" class="is-hidden">
+        <header class="sticky top-0 z-20 border-b border-border bg-surface/95 backdrop-blur px-5 py-3 flex items-center gap-3 flex-wrap">
+            <div class="w-8 h-8 rounded-lg bg-surfaceHover border border-border flex items-center justify-center">
+                <i class="ph ph-sliders-horizontal"></i>
+            </div>
+            <div class="mr-auto">
+                <h1 class="text-sm font-semibold leading-tight">Nexus admin</h1>
+                <p class="text-[10.5px] text-textMuted">Staff panel &middot; <span id="who">—</span></p>
+            </div>
+            <span id="live-pill" class="pill border-border text-textMuted">connecting</span>
+            <a href="/index.html" class="text-[11px] font-semibold text-textMuted hover:text-textMain">Exit</a>
+        </header>
+
+        <main class="max-w-5xl mx-auto p-5 flex flex-col gap-4">
+
+            <!-- Modes -->
+            <section class="rounded-xl border border-border bg-surface p-5">
+                <div class="flex items-start justify-between gap-3 mb-4 flex-wrap">
+                    <div>
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-textMuted">Workspace mode</h2>
+                        <p class="text-[11px] text-textMuted mt-1">Staff accounts bypass every mode. Everyone else is blocked by maintenance, lockdown and offline.</p>
+                    </div>
+                    <span id="mode-current" class="pill border-border text-textMuted">operational</span>
+                </div>
+                <div id="mode-grid" class="grid sm:grid-cols-3 gap-2.5" role="group" aria-label="Workspace mode"></div>
+                <p class="text-[10.5px] text-textMuted mt-2.5"><i class="ph ph-eye"></i> Preview opens the real notice page with your current message. Nothing is published until you hit Save.</p>
+            </section>
+
+            <!-- Stats -->
+            <section class="grid sm:grid-cols-4 gap-3">
+                <div class="rounded-xl border border-border bg-surface p-4">
+                    <p class="text-[9.5px] uppercase tracking-widest text-textMuted font-bold">Accounts</p>
+                    <p id="stat-accounts" class="text-2xl font-bold mt-1.5">—</p>
+                    <p id="stat-signups" class="text-[10.5px] text-textMuted mt-1">&nbsp;</p>
+                </div>
+                <div class="rounded-xl border border-border bg-surface p-4">
+                    <p class="text-[9.5px] uppercase tracking-widest text-textMuted font-bold">Group chats</p>
+                    <p id="stat-chats" class="text-2xl font-bold mt-1.5">—</p>
+                    <p class="text-[10.5px] text-textMuted mt-1">indexed rooms</p>
+                </div>
+                <div class="rounded-xl border border-border bg-surface p-4">
+                    <p class="text-[9.5px] uppercase tracking-widest text-textMuted font-bold">Messages</p>
+                    <p id="stat-messages" class="text-2xl font-bold mt-1.5">—</p>
+                    <p class="text-[10.5px] text-textMuted mt-1">across all rooms</p>
+                </div>
+                <div class="rounded-xl border border-border bg-surface p-4">
+                    <p class="text-[9.5px] uppercase tracking-widest text-textMuted font-bold">Updates</p>
+                    <p id="stat-updates" class="text-2xl font-bold mt-1.5">—</p>
+                    <p class="text-[10.5px] text-textMuted mt-1">published posts</p>
+                </div>
+            </section>
+
+            <div class="grid lg:grid-cols-2 gap-4">
+                <!-- Accounts -->
+                <section class="rounded-xl border border-border bg-surface p-5">
+                    <div class="flex items-center justify-between gap-3 mb-3">
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-textMuted">Accounts</h2>
+                        <input id="account-search" type="text" placeholder="Filter by email or name" class="!w-48 !py-1.5 !text-[11px]">
+                    </div>
+                    <div class="overflow-auto max-h-72 rounded-lg border border-border">
+                        <table>
+                            <thead><tr><th>Account</th><th>Role</th><th>State</th></tr></thead>
+                            <tbody id="accounts-body">
+                                <tr><td colspan="3" class="text-textMuted">Loading…</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                    <p id="accounts-note" class="text-[10.5px] text-textMuted mt-2"></p>
+                </section>
+
+                <!-- Analytics -->
+                <section class="rounded-xl border border-border bg-surface p-5">
+                    <h2 class="text-xs font-bold uppercase tracking-wider text-textMuted mb-3">Busiest rooms</h2>
+                    <div id="room-bars" class="flex flex-col gap-2.5">
+                        <p class="text-[11px] text-textMuted">Loading…</p>
+                    </div>
+                    <div class="border-t border-border mt-4 pt-3">
+                        <h3 class="text-[9.5px] uppercase tracking-widest text-textMuted font-bold mb-2">Recent sign-ins</h3>
+                        <div id="recent-signins" class="flex flex-col gap-1.5 text-[11.5px] text-textMuted">—</div>
+                    </div>
+                </section>
+            </div>
+
+            <!-- Message + banner -->
+            <section class="rounded-xl border border-border bg-surface p-5">
+                <h2 class="text-xs font-bold uppercase tracking-wider text-textMuted mb-3">Public message</h2>
+                <label for="mode-message" class="block text-[10.5px] font-semibold uppercase tracking-wider text-textMuted mb-1.5">Shown on the block screen and banner</label>
+                <textarea id="mode-message" rows="2" maxlength="500" placeholder="Back shortly — we're patching the chat service."></textarea>
+                <p class="text-[10px] text-textMuted mt-1.5"><span id="message-count">0</span>/500</p>
+
+                <div class="flex items-center justify-between gap-4 mt-5 pt-4 border-t border-border">
+                    <div>
+                        <h3 class="text-xs font-bold">Announcement banner</h3>
+                        <p class="text-[11px] text-textMuted mt-0.5">A quieter notice for all visitors, independent of the mode.</p>
+                    </div>
+                    <label class="switch">
+                        <input id="banner-toggle" type="checkbox" aria-label="Show announcement banner">
+                        <span aria-hidden="true"></span>
+                    </label>
+                </div>
+                <div class="grid sm:grid-cols-[1fr_140px] gap-3 mt-3">
+                    <input id="banner-message" type="text" maxlength="300" placeholder="The Harvest edition is live through November.">
+                    <select id="banner-tone">
+                        <option value="info">Info</option>
+                        <option value="warning">Warning</option>
+                        <option value="danger">Important</option>
+                    </select>
+                </div>
+            </section>
+
+            <!-- Global refresh -->
+            <section class="rounded-xl border border-border bg-surface p-5">
+                <div class="flex items-start justify-between gap-4 flex-wrap">
+                    <div>
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-textMuted">Global refresh</h2>
+                        <p class="text-[11px] text-textMuted mt-1">Reloads every other open Nexus tab so it picks up the latest build. The tab you send it from stays on this page.</p>
+                    </div>
+                    <span id="refresh-pill" class="pill border-border text-textMuted">never run</span>
+                </div>
+                <div class="flex items-center gap-2.5 mt-4 flex-wrap">
+                    <button id="global-refresh" class="rounded-lg bg-[#ededed] text-black text-[11px] font-bold px-3 py-2 inline-flex items-center gap-1.5 hover:opacity-90 disabled:opacity-60">
+                        <i class="ph ph-arrow-clockwise"></i> Refresh every open tab
+                    </button>
+                    <span id="refresh-msg" class="text-[11px] text-textMuted" role="status" aria-live="polite"></span>
+                </div>
+                <p class="text-[10.5px] text-textMuted mt-2.5">Writes <code class="text-textMain">system/refresh</code>. New visitors adopt the current token, so only tabs that were already open reload. Unsaved input in those tabs is lost.</p>
+            </section>
+
+            <!-- Discord -->
+            <section class="rounded-xl border border-border bg-surface p-5">
+                <div class="flex items-start justify-between gap-4 flex-wrap">
+                    <div>
+                        <h2 class="text-xs font-bold uppercase tracking-wider text-textMuted">Staff alerts</h2>
+                        <p class="text-[11px] text-textMuted mt-1">Posts to a Discord channel whenever the mode changes to maintenance, lockdown or offline.</p>
+                    </div>
+                    <span id="webhook-pill" class="pill border-border text-textMuted">not configured</span>
+                </div>
+                <label for="webhook" class="block text-[10.5px] font-semibold uppercase tracking-wider text-textMuted mt-4 mb-1.5">Staff channel webhook</label>
+                <input id="webhook" type="url" placeholder="https://discord.com/api/webhooks/…" autocomplete="off" spellcheck="false">
+                <div class="flex items-center gap-2.5 mt-2.5 flex-wrap">
+                    <button id="save-webhook" class="rounded-lg border border-border bg-surfaceHover text-[11px] font-semibold px-3 py-1.5 hover:border-[#3a3a3a]">Save webhook</button>
+                    <button id="test-webhook" class="rounded-lg border border-border bg-surfaceHover text-[11px] font-semibold px-3 py-1.5 hover:border-[#3a3a3a] inline-flex items-center gap-1.5"><i class="ph ph-paper-plane-tilt"></i> Send test</button>
+                    <span id="webhook-msg" class="text-[11px] text-textMuted"></span>
+                </div>
+                <p class="text-[10.5px] text-textMuted mt-2.5">Stored under <code class="text-textMain">nexus/config</code>, readable only by staff. Never world-readable.</p>
+            </section>
+
+            <!-- Publish -->
+            <div class="flex flex-wrap items-center gap-3 pb-6">
+                <button id="save" class="rounded-lg bg-[#ededed] text-black text-[12px] font-bold px-4 py-2.5 inline-flex items-center gap-2 hover:opacity-90">
+                    <i class="ph ph-floppy-disk"></i> Publish changes
+                </button>
+                <button id="reload" class="rounded-lg border border-border bg-surface text-textMuted text-[12px] font-semibold px-4 py-2.5 inline-flex items-center gap-2 hover:text-textMain">
+                    <i class="ph ph-arrow-counter-clockwise"></i> Reload live data
+                </button>
+                <span id="save-msg" class="text-[11px] text-textMuted" role="status" aria-live="polite"></span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notice page preview -->
+    <div id="preview" class="is-hidden" role="dialog" aria-modal="true" aria-labelledby="preview-title" aria-hidden="true">
+        <div class="preview-bar">
+            <span class="pill border-border text-textMuted">Preview</span>
+            <span id="preview-title" class="text-[12px] font-bold">—</span>
+            <span class="text-[10.5px] text-textMuted">What visitors would see right now. Not published.</span>
+            <button id="preview-close" class="ml-auto rounded-lg border border-border bg-surfaceHover text-[11px] font-semibold px-3 py-1.5 hover:border-[#3a3a3a] inline-flex items-center gap-1.5">
+                <i class="ph ph-x"></i> Close
+            </button>
+        </div>
+        <iframe id="preview-frame" title="Notice page preview" src="about:blank"></iframe>
+    </div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getDatabase, ref as dbRef, onValue, get, update, set, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAO_ffupJOIMPE9m4ARtaqSzC1vGDkIAco",
+            authDomain: "nexus-web-development-official.firebaseapp.com",
+            projectId: "nexus-web-development-official",
+            databaseURL: "https://nexus-web-development-official-default-rtdb.firebaseio.com"
+        };
+
+        const STAFF = [
+            "brodywilliams0226@gmail.com",
+            "bkeppel001@stpaul.k12.mn.us",
+            "bmkeppel7@gmail.com"
+        ];
+
+        const MODES = [
+            { id: "operational", label: "Operational", dot: "#7fd1a8", note: "Everything working normally." },
+            { id: "degraded",    label: "Degraded",    dot: "#d4d4d8", note: "Online, but something is slow or partial." },
+            { id: "testing",     label: "Testing",     dot: "#7fa8c9", note: "Staff-only notice while you test a change." },
+            { id: "maintenance", label: "Maintenance", dot: "#e2564a", page: "maintenance.html", note: "Shows /maintenance.html to everyone; staff get a banner and keep working." },
+            { id: "lockdown",    label: "Lockdown",    dot: "#e2564a", page: "lockdown.html", note: "Shows /lockdown.html to everyone; staff bypass it." },
+            { id: "offline",     label: "Shut down",     dot: "#e2564a", page: "offline.html", note: "Shows /offline.html to everyone; staff still get in." }
+        ];
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const systemRef = dbRef(db, "system");
+
+        const $ = (id) => document.getElementById(id);
+        const gate = $("gate"), panel = $("panel"), gateMsg = $("gate-msg");
+        const modeGrid = $("mode-grid"), saveMsg = $("save-msg");
+        const messageEl = $("mode-message"), bannerToggle = $("banner-toggle");
+        const bannerMessage = $("banner-message"), bannerTone = $("banner-tone");
+        const webhookEl = $("webhook"), webhookMsg = $("webhook-msg");
+        const preview = $("preview"), previewFrame = $("preview-frame"), previewTitle = $("preview-title");
+
+        let user = null, live = {}, dirty = false;
+        let accounts = {}, chatData = {}, indexData = {}, config = {};
+
+        function setDirty(v) {
+            dirty = v;
+            $("save").classList.toggle("opacity-60", !v);
+        }
+
+        function buildModeCards() {
+            modeGrid.innerHTML = "";
+            MODES.forEach(mode => {
+                const card = document.createElement("div");
+                card.className = "mode-card";
+                card.dataset.mode = mode.id;
+                card.setAttribute("role", "button");
+                card.setAttribute("tabindex", "0");
+                card.setAttribute("aria-pressed", "false");
+                card.innerHTML = `
+                    <span class="flex items-center gap-2">
+                        <span class="mode-dot" style="background:${mode.dot}"></span>
+                        <span class="text-[12px] font-bold">${mode.label}</span>
+                    </span>
+                    <span class="block text-[10.5px] text-textMuted mt-1.5 leading-snug">${mode.note}</span>
+                    ${mode.page ? `<button type="button" class="mode-preview" data-preview="${mode.id}"><i class="ph ph-arrow-square-out"></i> Preview</button>` : ""}
+                `;
+                const pick = () => {
+                    selectMode(mode.id);
+                    setDirty(true);
+                };
+                card.addEventListener("click", pick);
+                card.addEventListener("keydown", (event) => {
+                    if (event.target !== card) return;
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        pick();
+                    }
+                });
+                const chip = card.querySelector("[data-preview]");
+                if (chip) {
+                    chip.addEventListener("click", (event) => {
+                        event.stopPropagation();
+                        openPreview(mode.id);
+                    });
+                }
+                modeGrid.appendChild(card);
+            });
+        }
+
+        function selectMode(id) {
+            [...modeGrid.querySelectorAll("[data-mode]")].forEach(b =>
+                b.setAttribute("aria-pressed", String(b.dataset.mode === id)));
+            $("mode-current").textContent = id;
+        }
+
+        function currentMode() {
+            const pressed = modeGrid.querySelector('[data-mode][aria-pressed="true"]');
+            return pressed ? pressed.dataset.mode : "operational";
+        }
+
+        function openPreview(id) {
+            const mode = MODES.find(m => m.id === id);
+            if (!mode || !mode.page) return;
+            const params = new URLSearchParams({ mode: mode.id, since: String(Date.now()) });
+            const draft = messageEl.value.trim();
+            if (draft) params.set("message", draft);
+            previewFrame.src = `/${mode.page}?${params.toString()}`;
+            previewTitle.textContent = mode.label;
+            preview.classList.remove("is-hidden");
+            preview.setAttribute("aria-hidden", "false");
+            $("preview-close").focus();
+        }
+
+        function closePreview() {
+            preview.classList.add("is-hidden");
+            preview.setAttribute("aria-hidden", "true");
+            previewFrame.src = "about:blank";
+        }
+
+        function fillForm(state) {
+            selectMode(state.status || state.mode || (state.maintenance ? "maintenance" : "operational"));
+            messageEl.value = state.message || "";
+            bannerToggle.checked = state.banner?.enabled === true;
+            bannerMessage.value = state.banner?.message || "";
+            bannerTone.value = state.banner?.tone || "info";
+            $("message-count").textContent = messageEl.value.length;
+        }
+
+        async function loadData() {
+            const read = (path) => get(dbRef(db, path)).then(s => s.val() || {}).catch(() => null);
+
+            const [usersData, nexusUsers, chats, index, updates, cfg] = await Promise.all([
+                read("users"), read("nexus/users"), read("textnexus/chats"),
+                read("textnexus/index"), read("workspace_updates"), read("nexus/config")
+            ]);
+
+            accounts = usersData || {};
+            const roles = nexusUsers || {};
+            if (Object.keys(roles).length) {
+                Object.keys(roles).forEach(uid => {
+                    accounts[uid] = { ...(accounts[uid] || {}), ...roles[uid] };
+                });
+            }
+            chatData = chats || {};
+            indexData = index || {};
+            config = cfg || {};
+
+            const denied = usersData === null || chats === null;
+            $("accounts-note").textContent = denied
+                ? "Could not read accounts — the hardened rules may not be deployed yet."
+                : "";
+
+            renderStats(updates);
+            renderAccounts();
+            renderRooms();
+            renderSignins();
+            renderWebhook();
+        }
+
+        function renderStats(updates) {
+            const uids = Object.keys(accounts);
+            $("stat-accounts").textContent = uids.length || "0";
+            const recent = uids.filter(uid => {
+                const t = Number(accounts[uid]?.lastLogin || 0);
+                return t && Date.now() - t < 7 * 86400000;
+            }).length;
+            $("stat-signups").textContent = recent ? `${recent} active this week` : "no recent sign-ins";
+
+            const chatIds = Object.keys(indexData);
+            $("stat-chats").textContent = chatIds.length;
+
+            let messages = 0;
+            Object.keys(chatData).forEach(id => {
+                messages += Object.keys(chatData[id]?.messages || {}).length;
+            });
+            $("stat-messages").textContent = messages;
+            $("stat-updates").textContent = Object.keys(updates || {}).length;
+        }
+
+        function renderAccounts() {
+            const filter = ($("account-search").value || "").trim().toLowerCase();
+            const rows = Object.keys(accounts)
+                .map(uid => ({ uid, ...accounts[uid] }))
+                .filter(a => !filter || `${a.email || ""} ${a.name || ""}`.toLowerCase().includes(filter))
+                .sort((a, b) => Number(b.lastLogin || 0) - Number(a.lastLogin || 0))
+                .slice(0, 50);
+
+            const body = $("accounts-body");
+            if (!rows.length) {
+                body.innerHTML = `<tr><td colspan="3" class="text-textMuted">No accounts to show.</td></tr>`;
+                return;
+            }
+            body.innerHTML = rows.map(a => {
+                const email = a.email || "(no email)";
+                const staff = STAFF.includes(String(email).toLowerCase());
+                const banned = a.isBanned === true;
+                const role = a.role || (staff ? "owner" : "member");
+                return `<tr>
+                    <td>
+                        <div class="font-medium text-textMain truncate max-w-[220px]">${escapeHtml(a.name || email.split("@")[0])}</div>
+                        <div class="text-[10.5px] text-textMuted truncate max-w-[220px]">${escapeHtml(email)}</div>
+                    </td>
+                    <td><span class="text-[10px] uppercase tracking-wider ${staff ? "text-emerald-400" : "text-textMuted"}">${escapeHtml(role)}</span></td>
+                    <td><span class="text-[10px] ${banned ? "text-red-400" : "text-textMuted"}">${banned ? "banned" : "active"}</span></td>
+                </tr>`;
+            }).join("");
+        }
+
+        function renderRooms() {
+            const rooms = Object.keys(chatData).map(id => ({
+                id,
+                name: indexData[id]?.name || chatData[id]?.name || "Untitled",
+                count: Object.keys(chatData[id]?.messages || {}).length
+            })).sort((a, b) => b.count - a.count).slice(0, 6);
+
+            const wrap = $("room-bars");
+            if (!rooms.length) {
+                wrap.innerHTML = `<p class="text-[11px] text-textMuted">No chat data yet.</p>`;
+                return;
+            }
+            const max = Math.max(...rooms.map(r => r.count), 1);
+            wrap.innerHTML = rooms.map(r => `
+                <div>
+                    <div class="flex items-center justify-between text-[11px] mb-1">
+                        <span class="text-textMain truncate max-w-[65%]">${escapeHtml(r.name)}</span>
+                        <span class="text-textMuted">${r.count}</span>
+                    </div>
+                    <div class="bar"><i style="width:${Math.max(4, Math.round((r.count / max) * 100))}%"></i></div>
+                </div>
+            `).join("");
+        }
+
+        function renderSignins() {
+            const recent = Object.keys(accounts)
+                .map(uid => accounts[uid])
+                .filter(a => Number(a.lastLogin || 0) > 0)
+                .sort((a, b) => Number(b.lastLogin) - Number(a.lastLogin))
+                .slice(0, 5);
+
+            $("recent-signins").innerHTML = recent.length
+                ? recent.map(a => `<div class="flex items-center justify-between gap-2">
+                        <span class="truncate">${escapeHtml(a.email || a.name || "unknown")}</span>
+                        <span class="shrink-0 text-[10px]">${new Date(Number(a.lastLogin)).toLocaleDateString()}</span>
+                    </div>`).join("")
+                : `<span>No recorded sign-ins.</span>`;
+        }
+
+        function renderWebhook() {
+            const url = config.discordStaffWebhook || "";
+            webhookEl.value = url;
+            const pill = $("webhook-pill");
+            pill.textContent = url ? "configured" : "not configured";
+            pill.className = url
+                ? "pill border-emerald-500/40 text-emerald-400"
+                : "pill border-border text-textMuted";
+        }
+
+        function escapeHtml(value) {
+            return String(value == null ? "" : value).replace(/[&<>"']/g, c => (
+                { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]
+            ));
+        }
+
+        async function postToDiscord(text) {
+            const url = (config.discordStaffWebhook || "").trim();
+            if (!url) return { ok: false, reason: "no-webhook" };
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ content: text.slice(0, 1900), allowed_mentions: { parse: [] } })
+                });
+                return { ok: response.ok, reason: response.ok ? "sent" : `HTTP ${response.status}` };
+            } catch (error) {
+                return { ok: false, reason: error?.message || "network" };
+            }
+        }
+
+        function modeLabel(id) {
+            return (MODES.find(m => m.id === id) || MODES[0]).label;
+        }
+
+        // ---- auth ----
+        const googleProvider = new GoogleAuthProvider();
+        googleProvider.setCustomParameters({ prompt: "select_account" });
+
+        function authError(error) {
+            const code = error?.code || "";
+            if (code.includes("popup-closed") || code.includes("cancelled-popup-request")) return "Google sign-in was closed.";
+            if (code.includes("popup-blocked")) return "Allow pop-ups, then try Google sign-in again.";
+            if (code.includes("redirect-cancelled")) return "Google sign-in was cancelled.";
+            if (code.includes("web-storage-unsupported")) return "Your browser is blocking the storage needed for sign-in. Allow cookies and try again.";
+            if (code.includes("unauthorized-domain")) return "This domain is not authorized for Google sign-in in Firebase.";
+            if (code.includes("operation-not-allowed")) return "Google sign-in is not enabled in the Firebase console.";
+            if (code.includes("network-request-failed")) return "Network error. Try Google sign-in again.";
+            return error?.message || "Google sign-in failed. Try again.";
+        }
+
+        $("gate-signin").addEventListener("click", async () => {
+            const button = $("gate-signin");
+            button.disabled = true;
+            gateMsg.textContent = "Opening Google...";
+            try {
+                try {
+                    await signInWithPopup(auth, googleProvider);
+                } catch (error) {
+                    const code = error?.code || "";
+                    // A blocked popup (or an in-app browser with no popup support)
+                    // leaves the redirect round-trip as the only way in.
+                    if (!code.includes("popup-blocked") && !code.includes("operation-not-supported-in-this-environment")) throw error;
+                    await signInWithRedirect(auth, googleProvider);
+                    return;
+                }
+            } catch (error) {
+                gateMsg.textContent = authError(error);
+                button.disabled = false;
+            }
+        });
+
+        // Firebase finishes a redirect sign-in on this load. Surface OAuth and
+        // authorized-domain failures instead of a silently signed-out page.
+        getRedirectResult(auth).catch((error) => {
+            gateMsg.textContent = authError(error);
+            $("gate-signin").disabled = false;
+        });
+
+        onAuthStateChanged(auth, async (nextUser) => {
+            user = nextUser;
+            const allowed = !!user && STAFF.includes(String(user.email || "").toLowerCase());
+            gate.classList.toggle("is-hidden", allowed);
+            panel.classList.toggle("is-hidden", !allowed);
+
+            if (user && !allowed) gateMsg.textContent = `${user.email} is not a staff account.`;
+            if (!allowed) return;
+
+            $("who").textContent = user.email;
+            buildModeCards();
+            await loadData();
+            fillForm(live);
+        });
+
+        // ---- live system ----
+        onValue(systemRef, (snap) => {
+            live = snap.val() || {};
+            if (!dirty) fillForm(live);
+            const pill = $("live-pill");
+            pill.textContent = "live";
+            pill.className = "pill border-emerald-500/40 text-emerald-400";
+
+            const refreshedAt = Number(live.refresh) || 0;
+            $("refresh-pill").textContent = refreshedAt
+                ? `last ${new Date(refreshedAt).toLocaleString()}`
+                : "never run";
+        }, () => {
+            $("live-pill").textContent = "read failed";
+            $("live-pill").className = "pill border-red-500/40 text-red-400";
+        });
+
+        // ---- interactions ----
+        messageEl.addEventListener("input", () => {
+            $("message-count").textContent = messageEl.value.length;
+            setDirty(true);
+        });
+        [bannerToggle, bannerMessage, bannerTone].forEach(el =>
+            el.addEventListener("input", () => setDirty(true)));
+        $("account-search").addEventListener("input", renderAccounts);
+
+        $("save-webhook").addEventListener("click", async () => {
+            const url = webhookEl.value.trim();
+            webhookMsg.textContent = "Saving…";
+            try {
+                await set(dbRef(db, "nexus/config/discordStaffWebhook"), url);
+                config.discordStaffWebhook = url;
+                renderWebhook();
+                webhookMsg.textContent = url ? "Saved." : "Cleared.";
+            } catch (error) {
+                webhookMsg.textContent = `Could not save: ${error?.code || error?.message}`;
+            }
+        });
+
+        $("test-webhook").addEventListener("click", async () => {
+            webhookMsg.textContent = "Sending…";
+            const result = await postToDiscord(`Nexus staff alerts connected. Signed in as ${user?.email || "unknown"}.`);
+            webhookMsg.textContent = result.ok ? "Test message sent." : `Not sent (${result.reason}).`;
+        });
+
+        $("global-refresh").addEventListener("click", async () => {
+            if (!user) return;
+            if (!window.confirm("Reload every other open Nexus tab? Unsaved input in those tabs will be lost.")) return;
+            const button = $("global-refresh");
+            button.disabled = true;
+            $("refresh-msg").textContent = "Sending…";
+            try {
+                if (!window.NexusRefresh?.trigger) throw new Error("refresh service is still loading — try again");
+                const token = await window.NexusRefresh.trigger();
+                await push(dbRef(db, "nexus/audit_logs"), {
+                    action: "GLOBAL_REFRESH",
+                    adminEmail: user.email || "",
+                    timestamp: Date.now(),
+                    details: `Refresh token ${token}`
+                }).catch(() => {});
+                $("refresh-msg").textContent = `Sent at ${new Date(token).toLocaleTimeString()} — every other open tab will reload.`;
+            } catch (error) {
+                $("refresh-msg").textContent = `Could not send: ${error?.code || error?.message || error}`;
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        $("reload").addEventListener("click", async () => {
+            saveMsg.textContent = "Reloading…";
+            await loadData();
+            fillForm(live);
+            setDirty(false);
+            saveMsg.textContent = "Live data reloaded.";
+        });
+
+        $("save").addEventListener("click", async () => {
+            if (!user) return;
+            const mode = currentMode();
+            const previous = live.status || live.mode || "operational";
+            $("save").disabled = true;
+            saveMsg.textContent = "Publishing…";
+            try {
+                await update(systemRef, {
+                    status: mode,
+                    mode: mode,
+                    maintenance: ["maintenance", "lockdown", "offline"].includes(mode),
+                    message: messageEl.value.trim(),
+                    banner: {
+                        enabled: bannerToggle.checked,
+                        message: bannerMessage.value.trim(),
+                        tone: bannerTone.value
+                    },
+                    updatedAt: Date.now(),
+                    updatedBy: user.email || ""
+                });
+                await push(dbRef(db, "nexus/audit_logs"), {
+                    action: "SYSTEM_MODE",
+                    adminEmail: user.email || "",
+                    timestamp: Date.now(),
+                    details: `${previous} -> ${mode}`
+                }).catch(() => {});
+
+                // History is kept for the staff record.
+                await push(dbRef(db, "system/history"), {
+                    mode: mode,
+                    previous: previous,
+                    message: messageEl.value.trim(),
+                    at: Date.now(),
+                    by: user.email || ""
+                }).catch(() => {});
+
+                setDirty(false);
+                let note = `Published — now ${modeLabel(mode)}.`;
+                const blocking = ["maintenance", "lockdown", "offline"];
+
+                if (mode !== previous && blocking.includes(mode)) {
+                    const result = await postToDiscord(
+                        `**Nexus is now in ${modeLabel(mode)}**\n` +
+                        `${messageEl.value.trim() || "No message set."}\n` +
+                        `Changed by ${user.email}`
+                    );
+                    note += result.ok ? " Staff channel notified." : ` Discord not notified (${result.reason}).`;
+                } else if (mode === "operational" && blocking.includes(previous)) {
+                    const result = await postToDiscord(
+                        `**Nexus is back up — ${modeLabel(mode)}**\n` +
+                        `The ${modeLabel(previous).toLowerCase()} has ended. All services should be available again.\n` +
+                        `Cleared by ${user.email}`
+                    );
+                    note += result.ok ? " Staff channel got the all-clear." : ` Discord not notified (${result.reason}).`;
+                }
+                saveMsg.textContent = note;
+            } catch (error) {
+                saveMsg.textContent = `Could not publish: ${error?.code || error?.message}`;
+            } finally {
+                $("save").disabled = false;
+            }
+        });
+
+        $("preview-close").addEventListener("click", closePreview);
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && !preview.classList.contains("is-hidden")) closePreview();
+        });
+
+        buildModeCards();
+        window.nexusAdmin = { db, auth, systemRef };
+    </script>
+    <script type="module" src="realtime-refresh.js?v=2026-11-10"></script>
+</body>
+</html>

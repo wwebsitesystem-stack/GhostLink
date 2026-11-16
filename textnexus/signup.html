@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en" data-nexus="7.0">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>Sign in to Nexus 8.0</title>
+  <meta name="description" content="Sign in to TextNexus with your Google account.">
+  <link rel="icon" href="/logo.svg" type="image/svg+xml">
+  <style>
+    :root {
+      --bg: #000; --surface: #0a0a0a; --surface-2: #111;
+      --line: rgba(255,255,255,.09); --text: #fff; --muted: #8a8a8a;
+      --ok: #4ade80; --bad: #f87171; --accent: #60a5fa;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; background: var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+      display: flex; align-items: center; justify-content: center; padding: 28px 16px;
+      -webkit-font-smoothing: antialiased;
+    }
+    .wrap { width: 100%; max-width: 400px; }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 22px; font-weight: 600; }
+    .brand img { width: 26px; height: 26px; }
+    .card { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 26px; }
+    .kicker {
+      color: var(--accent); font-size: 10px; font-weight: 700; letter-spacing: .14em;
+      text-transform: uppercase; margin-bottom: 10px;
+    }
+    h1 { font-size: 21px; margin: 0 0 8px; letter-spacing: -.02em; }
+    .sub { font-size: 13px; color: var(--muted); margin: 0 0 20px; line-height: 1.6; }
+    .google-btn {
+      display: flex; align-items: center; justify-content: center; gap: 11px;
+      width: 100%; padding: 12px 14px; border-radius: 10px; border: 1px solid var(--line);
+      background: #fff; color: #111; font-family: inherit; font-size: 14px; font-weight: 600;
+      cursor: pointer; transition: background .18s ease, border-color .18s ease, transform .18s ease;
+    }
+    .google-btn:hover { background: #f4f4f4; border-color: rgba(255,255,255,.3); transform: translateY(-1px); }
+    .google-btn:disabled { opacity: .55; cursor: wait; transform: none; }
+    .google-btn svg { width: 19px; height: 19px; flex: 0 0 auto; }
+    .google-only {
+      display: flex; align-items: center; justify-content: center; gap: 7px;
+      margin-top: 14px; color: var(--muted); font-size: 11px; line-height: 1.5;
+    }
+    .google-only svg {
+      width: 12px; height: 12px; flex: 0 0 auto; fill: none; stroke: var(--ok);
+      stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+    }
+    #msg { font-size: 12.5px; line-height: 1.5; margin-top: 14px; min-height: 18px; }
+    #msg.ok { color: var(--ok); }
+    #msg.err { color: var(--bad); }
+    .foot { font-size: 11.5px; color: #555; text-align: center; margin-top: 18px; line-height: 1.7; }
+    .foot a { color: var(--muted); }
+  </style>
+  <script src="season.js?v=2026-11-11-turkey"></script>
+    <link rel="stylesheet" href="v7.css?v=2026-11-09a">
+</head>
+<body class="v7-auth">
+  <main class="wrap">
+    <div class="brand"><img src="/logo.svg" alt=""><span>TextNexus</span><span class="v7-chip">Nexus 8.0</span></div>
+    <div class="card">
+      <div class="kicker">Nexus account // 8.0</div>
+      <h1 id="title">Enter Nexus 8.0.</h1>
+      <p class="sub" id="subtitle">Use your Google account to open TextNexus. There is no separate password to remember.</p>
+
+      <button class="google-btn" id="googleBtn" type="button">
+        <svg viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#ffffff" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.1H42V20H24v8h11.3c-1.7 4.7-6.1 8-11.3 8-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44c11 0 20-9 20-20 0-1.3-.1-2.6-.4-3.9z"/></svg>
+        <span>Continue with Google</span>
+      </button>
+
+      <div class="google-only">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M20 6L9 17l-5-5"/></svg>
+        Google is the only sign-in method for TextNexus.
+      </div>
+      <div id="msg" role="status" aria-live="polite"></div>
+    </div>
+    <p class="foot">
+      <a href="/index.html">Back to TextNexus</a>
+    </p>
+    <p class="foot" style="margin-top:8px;">
+      By continuing you agree to the <a href="/safety.html">community standards</a>.
+      Nexus never asks for your Google password.
+    </p>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithRedirect, signInWithPopup, getRedirectResult } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyAO_ffupJOIMPE9m4ARtaqSzC1vGDkIAco",
+      authDomain: "nexus-web-development-official.firebaseapp.com",
+      projectId: "nexus-web-development-official",
+      databaseURL: "https://nexus-web-development-official-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getDatabase(app);
+    const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: "select_account" });
+
+    const googleBtn = document.getElementById("googleBtn");
+    const msgEl = document.getElementById("msg");
+    const msg = (text, kind = "") => { msgEl.textContent = text; msgEl.className = kind; };
+    let redirecting = false;
+
+    function friendly(error) {
+      const code = error?.code || "";
+      if (code.includes("popup-closed") || code.includes("cancelled-popup-request")) return "Google sign-in was closed.";
+      if (code.includes("popup-blocked")) return "Allow pop-ups, then try Google sign-in again.";
+      if (code.includes("redirect-cancelled")) return "Google sign-in was cancelled.";
+      if (code.includes("web-storage-unsupported")) return "Your browser is blocking the storage needed for sign-in. Allow cookies and try again.";
+      if (code.includes("unauthorized-domain")) return "This domain is not authorized for Google sign-in in Firebase.";
+      if (code.includes("operation-not-allowed")) return "Google sign-in is not enabled in the Firebase console.";
+      if (code.includes("network-request-failed")) return "Network error. Try Google sign-in again.";
+      return error?.message || "Google sign-in failed. Try again.";
+    }
+
+    async function saveProfile(user) {
+      try {
+        // update(), not set(): users/<uid> also holds the GhostLink cloud data,
+        // and replacing the whole node on every sign-in would delete it.
+        await update(ref(db, `users/${user.uid}`), {
+          uid: user.uid,
+          email: user.email || "",
+          name: user.displayName || "",
+          provider: "google",
+          createdAt: Date.now()
+        });
+      } catch {
+        // The user is authenticated even if the Realtime Database rules are not published yet.
+      }
+    }
+
+    function enterNexus(user) {
+      if (redirecting) return;
+      redirecting = true;
+      const name = user.displayName || user.email || "your Google account";
+      msg(`Signed in as ${name}. Opening TextNexus...`, "ok");
+      setTimeout(() => location.assign("/index.html"), 700);
+    }
+
+    googleBtn.addEventListener("click", async () => {
+      googleBtn.disabled = true;
+      msg("Redirecting to Google...");
+      try {
+        // Popup first: the redirect round-trip silently returns signed out when
+        // the browser partitions storage between this origin and the auth domain.
+        try {
+          await signInWithPopup(auth, provider);
+        } catch (error) {
+          const code = error?.code || "";
+          if (!code.includes("popup-blocked") && !code.includes("operation-not-supported-in-this-environment")) throw error;
+          await signInWithRedirect(auth, provider);
+        }
+      } catch (error) {
+        msg(friendly(error), "err");
+        googleBtn.disabled = false;
+      }
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        saveProfile(user);
+        enterNexus(user);
+      } else {
+        googleBtn.disabled = false;
+      }
+    });
+
+    // Firebase processes the redirect on this page load. Surface any OAuth or
+    // authorized-domain error instead of silently returning to a signed-out page.
+    getRedirectResult(auth)
+      .then(async (result) => {
+        if (!result?.user) return;
+        await saveProfile(result.user);
+        enterNexus(result.user);
+      })
+      .catch((error) => {
+        msg(friendly(error), "err");
+        googleBtn.disabled = false;
+      });
+  </script>
+    <script type="module" src="realtime-refresh.js?v=2026-11-10"></script>
+</body>
+</html>

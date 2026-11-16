@@ -1,0 +1,122 @@
+--- a/system.js
++++ b/system.js
+@@ -198,12 +198,17 @@
+ 
+     // Staff (or anyone when nothing is wrong) see at most a slim banner.
+     const staffNotice = isStaff && def.blocking;
+-    const showBar = isTopLevel && (blocked ? false : (staffNotice || (announce && !(def.staffOnly && !isStaff))));
++    // Testing is a staff-only mode, so the mode itself always surfaces a notice
++    // for staff even when the public announcement banner is switched off.
++    const testingNotice = isStaff && Boolean(def.staffOnly);
++    const showBar = isTopLevel && (blocked ? false : (staffNotice || testingNotice || (announce && !(def.staffOnly && !isStaff))));
+     if (showBar && bar) {
+         const tone = TONES[def.blocking ? "danger" : banner.tone] || TONES.info;
+         const message = def.blocking
+             ? (currentState?.message || `Nexus is in ${def.label.toLowerCase()}. You are seeing this because your account bypasses it.`)
+-            : (banner.message || "Heads up from the Nexus team.");
++            : (banner.message || (testingNotice
++                ? `Nexus is in ${def.label.toLowerCase()}. This notice only shows for staff accounts.`
++                : "Heads up from the Nexus team."));
+         // Tint an opaque background so the bar stays readable over the page.
+         bar.style.backgroundImage = `linear-gradient(${tone.bg}, ${tone.bg})`;
+         bar.style.borderBottomColor = tone.border;
+--- a/system-console.html
++++ b/system-console.html
+@@ -260,7 +260,7 @@
+ 
+     <script type="module">
+         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
++        import { getAuth, signInWithPopup, signInWithRedirect, getRedirectResult, GoogleAuthProvider, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+         import { getDatabase, ref as dbRef, onValue, get, update, set, push, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+ 
+         const firebaseConfig = {
+@@ -540,20 +540,49 @@
+         }
+ 
+         // ---- auth ----
++        const googleProvider = new GoogleAuthProvider();
++        googleProvider.setCustomParameters({ prompt: "select_account" });
++
++        function authError(error) {
++            const code = error?.code || "";
++            if (code.includes("popup-closed") || code.includes("cancelled-popup-request")) return "Google sign-in was closed.";
++            if (code.includes("popup-blocked")) return "Allow pop-ups, then try Google sign-in again.";
++            if (code.includes("redirect-cancelled")) return "Google sign-in was cancelled.";
++            if (code.includes("web-storage-unsupported")) return "Your browser is blocking the storage needed for sign-in. Allow cookies and try again.";
++            if (code.includes("unauthorized-domain")) return "This domain is not authorized for Google sign-in in Firebase.";
++            if (code.includes("operation-not-allowed")) return "Google sign-in is not enabled in the Firebase console.";
++            if (code.includes("network-request-failed")) return "Network error. Try Google sign-in again.";
++            return error?.message || "Google sign-in failed. Try again.";
++        }
++
+         $("gate-signin").addEventListener("click", async () => {
+-            $("gate-signin").disabled = true;
++            const button = $("gate-signin");
++            button.disabled = true;
+             gateMsg.textContent = "Opening Google...";
+             try {
+-                await signInWithPopup(auth, new GoogleAuthProvider());
++                try {
++                    await signInWithPopup(auth, googleProvider);
++                } catch (error) {
++                    const code = error?.code || "";
++                    // A blocked popup (or an in-app browser with no popup support)
++                    // leaves the redirect round-trip as the only way in.
++                    if (!code.includes("popup-blocked") && !code.includes("operation-not-supported-in-this-environment")) throw error;
++                    await signInWithRedirect(auth, googleProvider);
++                    return;
++                }
+             } catch (error) {
+-                gateMsg.textContent = error?.code === "auth/popup-closed-by-user"
+-                    ? "Sign-in cancelled."
+-                    : `Sign-in failed: ${error?.code || error?.message}`;
+-            } finally {
+-                $("gate-signin").disabled = false;
++                gateMsg.textContent = authError(error);
++                button.disabled = false;
+             }
+         });
+ 
++        // Firebase finishes a redirect sign-in on this load. Surface OAuth and
++        // authorized-domain failures instead of a silently signed-out page.
++        getRedirectResult(auth).catch((error) => {
++            gateMsg.textContent = authError(error);
++            $("gate-signin").disabled = false;
++        });
++
+         onAuthStateChanged(auth, async (nextUser) => {
+             user = nextUser;
+             const allowed = !!user && STAFF.includes(String(user.email || "").toLowerCase());
+--- a/signup.html
++++ b/signup.html
+@@ -87,7 +87,7 @@
+   <script type="module">
+     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+     import { getAuth, GoogleAuthProvider, onAuthStateChanged, signInWithRedirect, signInWithPopup, getRedirectResult } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
++    import { getDatabase, ref, update } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+ 
+     const firebaseConfig = {
+       apiKey: "AIzaSyAO_ffupJOIMPE9m4ARtaqSzC1vGDkIAco",
+@@ -121,7 +121,9 @@
+ 
+     async function saveProfile(user) {
+       try {
+-        await set(ref(db, `users/${user.uid}`), {
++        // update(), not set(): users/<uid> also holds the GhostLink cloud data,
++        // and replacing the whole node on every sign-in would delete it.
++        await update(ref(db, `users/${user.uid}`), {
+           uid: user.uid,
+           email: user.email || "",
+           name: user.displayName || "",
+--- a/_headers
++++ b/_headers
+@@ -35,3 +35,7 @@
+ /signup.html
+   X-Robots-Tag: noindex, nofollow
+   Cache-Control: no-cache
++
++# The status gate is a kill-switch: a stale copy must never outlive a deploy.
++/system.js
++  Cache-Control: no-cache
