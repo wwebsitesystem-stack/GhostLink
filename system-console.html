@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="robots" content="noindex, nofollow">
+    <title>GhostLink Admin | System Control</title>
+    <meta name="theme-color" content="#000000">
+    <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/virtuan4-max/ghostlinkhub@main/assets/favicon.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg: #000000; --surface: #0a0a0a; --surface-2: #121212; --border: #262626;
+            --text: #ededed; --muted: #a1a1aa; --accent: #6ecbff; --danger: #e2564a;
+            --ok: #7fd1a8;
+        }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; background: var(--bg); color: var(--text);
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+            -webkit-font-smoothing: antialiased; min-height: 100vh;
+        }
+        a { color: inherit; }
+        .hidden { display: none !important; }
+        code, .mono { font-family: 'JetBrains Mono', monospace; }
+
+        /* ---- sign-in gate ---- */
+        #gate { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; }
+        .gate-card {
+            width: 100%; max-width: 380px; padding: 30px 28px; text-align: center;
+            background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+        }
+        .gate-mark {
+            width: 44px; height: 44px; margin: 0 auto 16px; border-radius: 12px;
+            display: grid; place-items: center; color: var(--accent);
+            border: 1px solid var(--border); background: var(--surface-2);
+        }
+        .gate-mark svg { width: 21px; height: 21px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+        .gate-card h1 { margin: 0 0 6px; font-size: 15px; }
+        .gate-card p { margin: 0 0 20px; font-size: 11.5px; line-height: 1.6; color: var(--muted); }
+        .google-btn {
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+            width: 100%; padding: 11px 14px; border-radius: 10px; border: 1px solid var(--border);
+            background: var(--accent); color: #000; font-family: inherit; font-size: 13px; font-weight: 700;
+            cursor: pointer; transition: opacity .15s ease;
+        }
+        .google-btn:hover { opacity: .9; }
+        .google-btn:disabled { opacity: .55; cursor: wait; }
+        .gate-msg { min-height: 18px; margin-top: 12px; font-size: 11.5px; line-height: 1.5; color: var(--muted); }
+        .gate-links { margin-top: 18px; font-size: 11px; color: var(--muted); }
+        .gate-links a { margin: 0 7px; text-decoration: none; }
+        .gate-links a:hover { color: var(--text); }
+
+        /* ---- panel ---- */
+        header.top {
+            position: sticky; top: 0; z-index: 20; display: flex; align-items: center; gap: 12px;
+            padding: 12px 18px; border-bottom: 1px solid var(--border);
+            background: rgba(10, 10, 10, 0.96); backdrop-filter: blur(10px); flex-wrap: wrap;
+        }
+        .top-mark {
+            width: 32px; height: 32px; border-radius: 9px; display: grid; place-items: center;
+            color: var(--accent); border: 1px solid var(--border); background: var(--surface-2);
+        }
+        .top-mark svg { width: 17px; height: 17px; stroke: currentColor; fill: none; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+        .top-title { margin-right: auto; }
+        .top-title h1 { margin: 0; font-size: 13px; font-weight: 600; }
+        .top-title p { margin: 2px 0 0; font-size: 10.5px; color: var(--muted); }
+        .pill {
+            font-size: 9px; font-weight: 700; letter-spacing: .12em; text-transform: uppercase;
+            padding: 3px 9px; border-radius: 999px; border: 1px solid var(--border); color: var(--muted);
+            white-space: nowrap;
+        }
+        .pill.live { border-color: rgba(127, 209, 168, .4); color: var(--ok); }
+        .pill.bad { border-color: rgba(226, 86, 74, .45); color: var(--danger); }
+        .exit { font-size: 11px; font-weight: 600; color: var(--muted); text-decoration: none; }
+        .exit:hover { color: var(--text); }
+
+        main { max-width: 940px; margin: 0 auto; padding: 22px 18px 40px; display: flex; flex-direction: column; gap: 16px; }
+        section { background: var(--surface); border: 1px solid var(--border); border-radius: 14px; padding: 20px; }
+        section h2 { margin: 0 0 6px; font-size: 10px; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); }
+        section .hint { margin: 0; font-size: 11px; line-height: 1.6; color: var(--muted); }
+        .row-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 14px; }
+        .row-head > div { flex: 1 1 260px; }
+
+        .mode-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 10px; }
+        .mode-card {
+            position: relative; text-align: left; cursor: pointer;
+            background: var(--surface-2); border: 1px solid var(--border); border-radius: 11px;
+            padding: 12px 13px; transition: border-color .15s ease, background .15s ease;
+            font-family: inherit; color: var(--text);
+        }
+        .mode-card:hover { border-color: #3a3a3a; }
+        .mode-card:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+        .mode-card[aria-pressed="true"] { border-color: var(--accent); background: rgba(110, 203, 255, .06); }
+        .mode-card[aria-pressed="true"]::after {
+            content: ""; position: absolute; top: 12px; right: 12px;
+            width: 7px; height: 7px; border-radius: 999px; background: var(--accent);
+        }
+        .mode-head { display: flex; align-items: center; gap: 8px; }
+        .dot { width: 7px; height: 7px; border-radius: 999px; flex: 0 0 auto; }
+        .mode-label { font-size: 12px; font-weight: 700; }
+        .mode-note { margin: 6px 0 0; font-size: 10.5px; line-height: 1.55; color: var(--muted); }
+        .preview-chip {
+            margin-top: 10px; display: inline-flex; align-items: center; gap: 5px;
+            font-size: 9.5px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase;
+            color: var(--muted); background: #000; border: 1px solid var(--border);
+            border-radius: 7px; padding: 4px 8px; cursor: pointer; font-family: inherit;
+        }
+        .preview-chip:hover { color: var(--text); border-color: #3a3a3a; }
+
+        label.field { display: block; font-size: 10px; font-weight: 600; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); margin: 0 0 7px; }
+        textarea, input[type="text"], input[type="url"], select {
+            width: 100%; background: #000; border: 1px solid var(--border); color: var(--text);
+            border-radius: 9px; padding: 9px 12px; font-size: 12.5px; line-height: 1.6; font-family: inherit;
+        }
+        textarea { resize: vertical; min-height: 64px; }
+        textarea:focus, input:focus, select:focus { outline: none; border-color: #4a4a4a; }
+        .counter { margin: 5px 0 0; font-size: 10px; color: var(--muted); text-align: right; }
+        .split { display: grid; grid-template-columns: 1fr 140px; gap: 10px; margin-top: 10px; }
+        @media (max-width: 640px) { .split { grid-template-columns: 1fr; } }
+
+        .switch-row { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding-top: 16px; margin-top: 16px; border-top: 1px solid var(--border); }
+        .switch-row h3 { margin: 0; font-size: 12px; font-weight: 700; }
+        .switch-row p { margin: 2px 0 0; font-size: 11px; color: var(--muted); }
+        .switch { position: relative; width: 42px; height: 24px; flex: 0 0 auto; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .switch span { position: absolute; inset: 0; cursor: pointer; background: var(--border); border-radius: 999px; transition: background .18s ease; }
+        .switch span::before {
+            content: ""; position: absolute; width: 18px; height: 18px; left: 3px; top: 3px;
+            background: var(--muted); border-radius: 999px; transition: transform .18s ease, background .18s ease;
+        }
+        .switch input:checked + span { background: var(--accent); }
+        .switch input:checked + span::before { transform: translateX(18px); background: #000; }
+        .switch input:focus-visible + span { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+        .actions { display: flex; align-items: center; gap: 9px; flex-wrap: wrap; margin-top: 12px; }
+        .btn {
+            display: inline-flex; align-items: center; gap: 7px; border-radius: 9px; cursor: pointer;
+            font-family: inherit; font-size: 11px; font-weight: 700; padding: 8px 13px;
+            border: 1px solid var(--border); background: var(--surface-2); color: var(--text);
+            transition: border-color .15s ease, opacity .15s ease;
+        }
+        .btn:hover:not(:disabled) { border-color: #3a3a3a; }
+        .btn:disabled { opacity: .55; cursor: wait; }
+        .btn.primary { background: var(--accent); color: #000; border-color: var(--accent); font-size: 12px; padding: 10px 16px; }
+        .btn.primary:hover:not(:disabled) { opacity: .9; }
+        .inline-msg { font-size: 11px; color: var(--muted); }
+        .inline-msg.error { color: var(--danger); }
+        .inline-msg.ok { color: var(--ok); }
+
+        .footer-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; padding-bottom: 8px; }
+
+        /* ---- notice preview ---- */
+        #preview { position: fixed; inset: 0; z-index: 60; background: #000; display: flex; flex-direction: column; }
+        #preview .preview-bar {
+            display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+            border-bottom: 1px solid var(--border); background: var(--surface); flex-wrap: wrap;
+        }
+        #preview .preview-bar strong { font-size: 12px; }
+        #preview .preview-bar span { font-size: 10.5px; color: var(--muted); }
+        #preview iframe { flex: 1; width: 100%; border: 0; background: #000; }
+    </style>
+</head>
+<body>
+
+    <!-- Sign-in gate -->
+    <div id="gate">
+        <div class="gate-card">
+            <div class="gate-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.4-3 7.4-7 9-4-1.6-7-4.6-7-9V6z"/><path d="M9 12l2 2 4-4"/></svg>
+            </div>
+            <h1>GhostLink admin</h1>
+            <p>Staff access only. Sign in with an approved Google account.</p>
+            <button id="gate-signin" class="google-btn" type="button">
+                <svg width="17" height="17" viewBox="0 0 48 48" aria-hidden="true" focusable="false"><path fill="#4285F4" d="M43.6 20.1H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.6-.4-3.9z"/><path fill="#34A853" d="M6.3 14.7l6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 8 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#FBBC05" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-7.9l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#EA4335" d="M43.6 20.1H42V20H24v8h11.3c-.8 2.2-2.2 4.1-4.1 5.5l6.2 5.2C41.1 35.5 44 30.2 44 24c0-1.3-.1-2.6-.4-3.9z"/></svg>
+                <span>Sign in with Google</span>
+            </button>
+            <p id="gate-msg" class="gate-msg" role="status" aria-live="polite"></p>
+            <div class="gate-links">
+                <a href="/">Back to GhostLink</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Panel -->
+    <div id="panel" class="hidden">
+        <header class="top">
+            <div class="top-mark" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="3"/><path d="M3 9h18"/><path d="M7 14h5"/></svg>
+            </div>
+            <div class="top-title">
+                <h1>GhostLink admin</h1>
+                <p>System control &middot; <span id="who">&mdash;</span></p>
+            </div>
+            <span id="live-pill" class="pill">connecting</span>
+            <a class="exit" href="/">Exit</a>
+        </header>
+
+        <main>
+            <section>
+                <div class="row-head">
+                    <div>
+                        <h2>Workspace mode</h2>
+                        <p class="hint">Staff accounts bypass every mode. Everyone else is blocked by maintenance, lockdown and offline.</p>
+                    </div>
+                    <span id="mode-current" class="pill">operational</span>
+                </div>
+                <div id="mode-grid" class="mode-grid" role="group" aria-label="Workspace mode"></div>
+                <p class="hint" style="margin-top:12px">Preview opens the real notice page with your current message. Nothing is published until you hit Publish.</p>
+            </section>
+
+            <section>
+                <h2>Public message</h2>
+                <label class="field" for="mode-message">Shown on the block screen and staff banner</label>
+                <textarea id="mode-message" rows="2" maxlength="500" placeholder="Back shortly &mdash; we're patching the proxy."></textarea>
+                <p class="counter"><span id="message-count">0</span>/500</p>
+
+                <div class="switch-row">
+                    <div>
+                        <h3>Announcement banner</h3>
+                        <p>A quieter notice for all visitors, independent of the mode.</p>
+                    </div>
+                    <label class="switch">
+                        <input id="banner-toggle" type="checkbox" aria-label="Show announcement banner">
+                        <span aria-hidden="true"></span>
+                    </label>
+                </div>
+                <div class="split">
+                    <input id="banner-message" type="text" maxlength="300" placeholder="New proxy regions are live this week.">
+                    <select id="banner-tone">
+                        <option value="info">Info</option>
+                        <option value="warning">Warning</option>
+                        <option value="danger">Important</option>
+                    </select>
+                </div>
+            </section>
+
+            <section>
+                <div class="row-head">
+                    <div>
+                        <h2>Global refresh</h2>
+                        <p class="hint">Reloads every other open GhostLink and Nexus tab so they pick up the latest build. This tab stays put.</p>
+                    </div>
+                    <span id="refresh-pill" class="pill">never run</span>
+                </div>
+                <div class="actions">
+                    <button id="global-refresh" class="btn" type="button">Refresh every open tab</button>
+                    <span id="refresh-msg" class="inline-msg" role="status" aria-live="polite"></span>
+                </div>
+            </section>
+
+            <section>
+                <div class="row-head">
+                    <div>
+                        <h2>Staff alerts</h2>
+                        <p class="hint">Posts to a Discord channel whenever a blocking mode starts or an outage clears.</p>
+                    </div>
+                    <span id="webhook-pill" class="pill">not configured</span>
+                </div>
+                <label class="field" for="webhook">Staff channel webhook</label>
+                <input id="webhook" type="url" placeholder="https://discord.com/api/webhooks/&hellip;" autocomplete="off" spellcheck="false">
+                <div class="actions">
+                    <button id="save-webhook" class="btn" type="button">Save webhook</button>
+                    <button id="test-webhook" class="btn" type="button">Send test</button>
+                    <span id="webhook-msg" class="inline-msg" role="status" aria-live="polite"></span>
+                </div>
+                <p class="hint" style="margin-top:10px">Stored under <code>nexus/config/discordStaffWebhook</code>, readable only by staff.</p>
+            </section>
+
+            <div class="footer-actions">
+                <button id="save" class="btn primary" type="button">Publish changes</button>
+                <button id="reload" class="btn" type="button">Reload live data</button>
+                <span id="save-msg" class="inline-msg" role="status" aria-live="polite"></span>
+            </div>
+        </main>
+    </div>
+
+    <!-- Notice preview -->
+    <div id="preview" class="hidden" role="dialog" aria-modal="true" aria-labelledby="preview-title" aria-hidden="true">
+        <div class="preview-bar">
+            <span class="pill">Preview</span>
+            <strong id="preview-title">&mdash;</strong>
+            <span>What visitors would see right now. Not published.</span>
+            <button id="preview-close" class="btn" type="button" style="margin-left:auto">Close</button>
+        </div>
+        <iframe id="preview-frame" title="Notice page preview" src="about:blank"></iframe>
+    </div>
+
+    <script type="module">
+        import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import {
+            getAuth, onAuthStateChanged, GoogleAuthProvider,
+            signInWithPopup, signInWithRedirect, getRedirectResult
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import {
+            getDatabase, ref, onValue, get, update, set, push
+        } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyAO_ffupJOIMPE9m4ARtaqSzC1vGDkIAco",
+            authDomain: "nexus-web-development-official.firebaseapp.com",
+            projectId: "nexus-web-development-official",
+            databaseURL: "https://nexus-web-development-official-default-rtdb.firebaseio.com"
+        };
+
+        const STAFF = [
+            "brodywilliams0226@gmail.com",
+            "bkeppel001@stpaul.k12.mn.us",
+            "bmkeppel7@gmail.com"
+        ];
+
+        const MODES = [
+            { id: "operational", label: "Operational", dot: "#6ecbff", note: "Everything working normally." },
+            { id: "degraded",    label: "Degraded",    dot: "#d4d4d8", note: "Online, but something is slow or partial." },
+            { id: "testing",     label: "Testing",     dot: "#6ecbff", note: "Staff-only notice while you test a change." },
+            { id: "maintenance", label: "Maintenance", dot: "#e2564a", page: "maintenance.html", note: "Shows /maintenance.html to everyone; staff get a banner and keep working." },
+            { id: "lockdown",    label: "Lockdown",    dot: "#e2564a", page: "lockdown.html",    note: "Shows /lockdown.html to everyone; staff bypass it." },
+            { id: "offline",     label: "Offline",     dot: "#e2564a", page: "offline.html",     note: "Shows /offline.html to everyone; staff still get in." }
+        ];
+        const BLOCKING = ["maintenance", "lockdown", "offline"];
+
+        const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+        const systemRef = ref(db, "system");
+
+        const $ = (id) => document.getElementById(id);
+        const gate = $("gate"), panel = $("panel"), gateMsg = $("gate-msg");
+        const modeGrid = $("mode-grid");
+        const messageEl = $("mode-message"), messageCount = $("message-count");
+        const bannerToggle = $("banner-toggle"), bannerMessage = $("banner-message"), bannerTone = $("banner-tone");
+        const webhookEl = $("webhook"), webhookMsg = $("webhook-msg");
+        const saveMsg = $("save-msg");
+        const preview = $("preview"), previewFrame = $("preview-frame"), previewTitle = $("preview-title");
+
+        let user = null;
+        let live = {};
+        let dirty = false;
+        let config = {};
+
+        /* ---- modes ---- */
+
+        function modeFromState(state) {
+            const raw = String(state?.status || state?.mode || "").toLowerCase();
+            if (MODES.some((mode) => mode.id === raw)) return raw;
+            return state?.maintenance === true ? "maintenance" : "operational";
+        }
+
+        function buildModeCards() {
+            modeGrid.innerHTML = "";
+            MODES.forEach((mode) => {
+                const card = document.createElement("div");
+                card.className = "mode-card";
+                card.dataset.mode = mode.id;
+                card.setAttribute("role", "button");
+                card.setAttribute("tabindex", "0");
+                card.setAttribute("aria-pressed", "false");
+                card.innerHTML = `
+                    <span class="mode-head">
+                        <span class="dot" style="background:${mode.dot}"></span>
+                        <span class="mode-label">${mode.label}</span>
+                    </span>
+                    <p class="mode-note">${mode.note}</p>
+                    ${mode.page ? `<button type="button" class="preview-chip" data-preview="${mode.id}">Preview</button>` : ""}
+                `;
+                const pick = () => { selectMode(mode.id); setDirty(true); };
+                card.addEventListener("click", pick);
+                card.addEventListener("keydown", (event) => {
+                    if (event.target !== card) return;
+                    if (event.key === "Enter" || event.key === " ") {
+                        event.preventDefault();
+                        pick();
+                    }
+                });
+                const chip = card.querySelector("[data-preview]");
+                if (chip) {
+                    chip.addEventListener("click", (event) => {
+                        event.stopPropagation();
+                        openPreview(mode.id);
+                    });
+                }
+                modeGrid.appendChild(card);
+            });
+        }
+
+        function selectMode(id) {
+            [...modeGrid.querySelectorAll("[data-mode]")].forEach((card) =>
+                card.setAttribute("aria-pressed", String(card.dataset.mode === id)));
+            $("mode-current").textContent = id;
+        }
+
+        function currentMode() {
+            const pressed = modeGrid.querySelector('[data-mode][aria-pressed="true"]');
+            return pressed ? pressed.dataset.mode : "operational";
+        }
+
+        function modeLabel(id) {
+            return (MODES.find((mode) => mode.id === id) || MODES[0]).label;
+        }
+
+        /* ---- preview ---- */
+
+        function openPreview(id) {
+            const mode = MODES.find((entry) => entry.id === id);
+            if (!mode || !mode.page) return;
+            const params = new URLSearchParams({ mode: mode.id, since: String(Date.now()) });
+            const draft = messageEl.value.trim();
+            if (draft) params.set("message", draft);
+            previewFrame.src = `/${mode.page}?${params.toString()}`;
+            previewTitle.textContent = mode.label;
+            preview.classList.remove("hidden");
+            preview.setAttribute("aria-hidden", "false");
+            $("preview-close").focus();
+        }
+
+        function closePreview() {
+            preview.classList.add("hidden");
+            preview.setAttribute("aria-hidden", "true");
+            previewFrame.src = "about:blank";
+        }
+
+        /* ---- form ---- */
+
+        function setDirty(value) {
+            dirty = value;
+            $("save").style.opacity = value ? "1" : ".6";
+        }
+
+        function fillForm(state) {
+            selectMode(modeFromState(state));
+            messageEl.value = state.message || "";
+            bannerToggle.checked = state.banner?.enabled === true;
+            bannerMessage.value = state.banner?.message || "";
+            bannerTone.value = state.banner?.tone || "info";
+            messageCount.textContent = String(messageEl.value.length);
+        }
+
+        /* ---- webhook ---- */
+
+        function renderWebhook() {
+            const url = config.discordStaffWebhook || "";
+            webhookEl.value = url;
+            const pill = $("webhook-pill");
+            pill.textContent = url ? "configured" : "not configured";
+            pill.className = url ? "pill live" : "pill";
+        }
+
+        async function loadConfig() {
+            try {
+                const snapshot = await get(ref(db, "nexus/config/discordStaffWebhook"));
+                config.discordStaffWebhook = snapshot.val() || "";
+            } catch {
+                config.discordStaffWebhook = "";
+            }
+            renderWebhook();
+        }
+
+        async function postToDiscord(text) {
+            const url = (config.discordStaffWebhook || "").trim();
+            if (!url) return { ok: false, reason: "no webhook configured" };
+            try {
+                const response = await fetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ content: text.slice(0, 1900), allowed_mentions: { parse: [] } })
+                });
+                return { ok: response.ok, reason: response.ok ? "sent" : `HTTP ${response.status}` };
+            } catch (error) {
+                return { ok: false, reason: error?.message || "network error" };
+            }
+        }
+
+        /* ---- auth ---- */
+
+        const provider = new GoogleAuthProvider();
+        provider.setCustomParameters({ prompt: "select_account" });
+
+        function staffAllowed(candidate) {
+            return !!candidate
+                && candidate.emailVerified !== false
+                && STAFF.includes(String(candidate.email || "").toLowerCase());
+        }
+
+        function authError(error) {
+            const code = error?.code || "";
+            if (code.includes("popup-closed") || code.includes("cancelled-popup-request")) return "Google sign-in was closed.";
+            if (code.includes("popup-blocked")) return "Allow pop-ups, then try Google sign-in again.";
+            if (code.includes("redirect-cancelled")) return "Google sign-in was cancelled.";
+            if (code.includes("web-storage-unsupported")) return "Your browser is blocking the storage needed for sign-in. Allow cookies and try again.";
+            if (code.includes("unauthorized-domain")) return "This domain is not authorized for Google sign-in in Firebase.";
+            if (code.includes("operation-not-allowed")) return "Google sign-in is not enabled in the Firebase console.";
+            if (code.includes("network-request-failed")) return "Network error. Try Google sign-in again.";
+            return error?.message || "Google sign-in failed. Try again.";
+        }
+
+        $("gate-signin").addEventListener("click", async () => {
+            const button = $("gate-signin");
+            button.disabled = true;
+            gateMsg.textContent = "Opening Google...";
+            try {
+                try {
+                    await signInWithPopup(auth, provider);
+                } catch (error) {
+                    const code = error?.code || "";
+                    // A blocked popup (or an in-app browser with no popup support)
+                    // leaves the redirect round-trip as the only way in.
+                    if (!code.includes("popup-blocked") && !code.includes("operation-not-supported-in-this-environment")) throw error;
+                    await signInWithRedirect(auth, provider);
+                    return;
+                }
+            } catch (error) {
+                gateMsg.textContent = authError(error);
+                button.disabled = false;
+            }
+        });
+
+        // Firebase finishes a redirect sign-in on this load. Surface OAuth and
+        // authorized-domain failures instead of a silently signed-out page.
+        getRedirectResult(auth).catch((error) => {
+            gateMsg.textContent = authError(error);
+            $("gate-signin").disabled = false;
+        });
+
+        onAuthStateChanged(auth, async (nextUser) => {
+            user = nextUser;
+            const allowed = staffAllowed(user);
+            gate.classList.toggle("hidden", allowed);
+            panel.classList.toggle("hidden", !allowed);
+            if (user && !allowed) gateMsg.textContent = `${user.email} is not a staff account.`;
+            if (!allowed) return;
+
+            $("who").textContent = user.email || "";
+            buildModeCards();
+            await loadConfig();
+            fillForm(live);
+        });
+
+        /* ---- live system ---- */
+
+        onValue(systemRef, (snapshot) => {
+            live = snapshot.val() || {};
+            if (!dirty) fillForm(live);
+
+            const livePill = $("live-pill");
+            livePill.textContent = "live";
+            livePill.className = "pill live";
+
+            const refreshedAt = Number(live.refresh) || 0;
+            $("refresh-pill").textContent = refreshedAt
+                ? `last ${new Date(refreshedAt).toLocaleString()}`
+                : "never run";
+        }, () => {
+            const livePill = $("live-pill");
+            livePill.textContent = "read failed";
+            livePill.className = "pill bad";
+        });
+
+        /* ---- interactions ---- */
+
+        messageEl.addEventListener("input", () => {
+            messageCount.textContent = String(messageEl.value.length);
+            setDirty(true);
+        });
+        [bannerToggle, bannerMessage, bannerTone].forEach((element) =>
+            element.addEventListener("input", () => setDirty(true)));
+
+        $("save-webhook").addEventListener("click", async () => {
+            const url = webhookEl.value.trim();
+            webhookMsg.textContent = "Saving...";
+            webhookMsg.className = "inline-msg";
+            try {
+                await set(ref(db, "nexus/config/discordStaffWebhook"), url);
+                config.discordStaffWebhook = url;
+                renderWebhook();
+                webhookMsg.textContent = url ? "Saved." : "Cleared.";
+                webhookMsg.className = "inline-msg ok";
+            } catch (error) {
+                webhookMsg.textContent = `Could not save: ${error?.code || error?.message}`;
+                webhookMsg.className = "inline-msg error";
+            }
+        });
+
+        $("test-webhook").addEventListener("click", async () => {
+            webhookMsg.textContent = "Sending...";
+            webhookMsg.className = "inline-msg";
+            const result = await postToDiscord(`GhostLink staff alerts connected. Signed in as ${user?.email || "unknown"}.`);
+            webhookMsg.textContent = result.ok ? "Test message sent." : `Not sent (${result.reason}).`;
+            webhookMsg.className = result.ok ? "inline-msg ok" : "inline-msg error";
+        });
+
+        $("global-refresh").addEventListener("click", async () => {
+            if (!user) return;
+            if (!window.confirm("Reload every other open GhostLink and Nexus tab? Unsaved input in those tabs will be lost.")) return;
+            const button = $("global-refresh");
+            button.disabled = true;
+            $("refresh-msg").textContent = "Sending...";
+            $("refresh-msg").className = "inline-msg";
+            try {
+                const token = Date.now();
+                await set(ref(db, "system/refresh"), token);
+                await push(ref(db, "nexus/audit_logs"), {
+                    action: "GLOBAL_REFRESH",
+                    adminEmail: user.email || "",
+                    timestamp: Date.now(),
+                    details: `Refresh token ${token}`
+                }).catch(() => {});
+                $("refresh-msg").textContent = `Sent at ${new Date(token).toLocaleTimeString()} — every other open tab will reload.`;
+                $("refresh-msg").className = "inline-msg ok";
+            } catch (error) {
+                $("refresh-msg").textContent = `Could not send: ${error?.code || error?.message || error}`;
+                $("refresh-msg").className = "inline-msg error";
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        $("reload").addEventListener("click", () => {
+            fillForm(live);
+            setDirty(false);
+            saveMsg.textContent = "Live data reloaded.";
+            saveMsg.className = "inline-msg";
+        });
+
+        $("save").addEventListener("click", async () => {
+            if (!user) return;
+            const mode = currentMode();
+            const previous = modeFromState(live);
+            const message = messageEl.value.trim();
+            const button = $("save");
+            button.disabled = true;
+            saveMsg.textContent = "Publishing...";
+            saveMsg.className = "inline-msg";
+            try {
+                await update(systemRef, {
+                    status: mode,
+                    mode: mode,
+                    maintenance: BLOCKING.includes(mode),
+                    message: message,
+                    banner: {
+                        enabled: bannerToggle.checked,
+                        message: bannerMessage.value.trim(),
+                        tone: bannerTone.value
+                    },
+                    updatedAt: Date.now(),
+                    updatedBy: user.email || ""
+                });
+
+                await push(ref(db, "nexus/audit_logs"), {
+                    action: "SYSTEM_MODE",
+                    adminEmail: user.email || "",
+                    timestamp: Date.now(),
+                    details: `${previous} -> ${mode}`
+                }).catch(() => {});
+
+                await push(ref(db, "system/history"), {
+                    mode: mode,
+                    previous: previous,
+                    message: message,
+                    at: Date.now(),
+                    by: user.email || ""
+                }).catch(() => {});
+
+                setDirty(false);
+                let note = `Published — now ${modeLabel(mode)}.`;
+
+                if (mode !== previous && BLOCKING.includes(mode)) {
+                    const result = await postToDiscord(
+                        `**GhostLink is now in ${modeLabel(mode)}**\n` +
+                        `${message || "No message set."}\n` +
+                        `Changed by ${user.email}`
+                    );
+                    note += result.ok ? " Staff channel notified." : ` Discord not notified (${result.reason}).`;
+                } else if (mode === "operational" && BLOCKING.includes(previous)) {
+                    const result = await postToDiscord(
+                        `**GhostLink is back up — ${modeLabel(mode)}**\n` +
+                        `The ${modeLabel(previous).toLowerCase()} has ended. All services should be available again.\n` +
+                        `Cleared by ${user.email}`
+                    );
+                    note += result.ok ? " Staff channel got the all-clear." : ` Discord not notified (${result.reason}).`;
+                }
+
+                saveMsg.textContent = note;
+                saveMsg.className = "inline-msg ok";
+            } catch (error) {
+                saveMsg.textContent = `Could not publish: ${error?.code || error?.message}`;
+                saveMsg.className = "inline-msg error";
+            } finally {
+                button.disabled = false;
+            }
+        });
+
+        $("preview-close").addEventListener("click", closePreview);
+        document.addEventListener("keydown", (event) => {
+            if (event.key === "Escape" && !preview.classList.contains("hidden")) closePreview();
+        });
+
+        buildModeCards();
+        window.ghostlinkAdmin = { db, auth, systemRef };
+    </script>
+</body>
+</html>
