@@ -1,18 +1,17 @@
 # GhostLink
 
-Single-page proxy browser behind a tutoring-app cover.
+Single-page proxy browser. `index.html` is the whole app; `global-refresh-client.js`
+adds the Google account and the Firebase-backed global refresh.
 
-- `index.html` — the TutorLink cover page. It asks whether you are a student or a
-  teacher and sends you to the matching workspace.
-- `ghostlink.html` — the actual app (proxy browser, apps, settings, cloud account),
-  presented as the **TutorLink Student studio**. This is where the **student**
-  option goes. It carries the same TutorLink header (brand mark, term chip,
-  *Switch role*) and the cover's indigo/type defaults, so the two pages read as
-  one product. A theme saved in Settings still overrides those defaults.
-- `teacher.html` — the teacher workspace: overview, classes, assignments, roster.
-  This is where the **teacher** option goes.
-- `global-refresh-client.js` — adds the Google account and the Firebase-backed
-  global refresh to `ghostlink.html`.
+- `index.html` — the app, served at the site root: proxy browser, apps, settings,
+  cloud account. Defaults to the blue `#6ecbff` accent on black, with a saved theme
+  from Settings overriding it.
+- `ghostlink.html` — a small redirect to the root, kept so older links to
+  `/ghostlink.html` still land on the app.
+- `global-refresh-client.js` — Google account and Firebase global refresh.
+
+The tutoring front that briefly sat in front of the proxy (the role-picker cover and
+`teacher.html`) is gone. It is still in git history at `4988bd1` if it is ever wanted.
 
 ## Cloud account + global refresh
 
@@ -25,11 +24,10 @@ Upload all of them to the same folder:
 
 - `index.html`
 - `ghostlink.html`
-- `teacher.html`
 - `global-refresh-client.js`
 
-`ghostlink.html` loads the module as `./global-refresh-client.js`, so
-`https://textnexus.me/ghostlink.html` needs `https://textnexus.me/global-refresh-client.js`.
+`index.html` loads the module as `./global-refresh-client.js`, so the app and the
+module have to sit in the same folder.
 
 ### Firebase console checklist
 
