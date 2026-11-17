@@ -44,12 +44,20 @@ const ALLOWED = new Set([
 let cached = { at: 0, known: false, mode: null };
 
 async function readJson(path) {
-  const res = await fetch(`${SYSTEM_BASE}${path}`, {
-    cf: { cacheTtl: 10, cacheEverything: true },
-    headers: { accept: "application/json" }
-  });
-  if (!res.ok) return null;
-  return res.json();
+  // Bounded: every request waits on this, so a slow database must not stall it.
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 1500);
+  try {
+    const res = await fetch(`${SYSTEM_BASE}${path}`, {
+      cf: { cacheTtl: 10, cacheEverything: true },
+      headers: { accept: "application/json" },
+      signal: controller.signal
+    });
+    if (!res.ok) return null;
+    return res.json();
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 async function currentMode() {
