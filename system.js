@@ -10,6 +10,9 @@ import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/11.6.
 import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-database.js";
 
+// Bans: shared TextNexus records, suspension notice and the staff Support tab.
+import "./ghostlink-bans.js?v=2026-11-17";
+
 const firebaseConfig = {
     apiKey: "AIzaSyAO_ffupJOIMPE9m4ARtaqSzC1vGDkIAco",
     authDomain: "nexus-web-development-official.firebaseapp.com",
