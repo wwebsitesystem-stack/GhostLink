@@ -2425,21 +2425,6 @@
             .gl-ad-rail { display: none; }
         }
 
-        .gl-ad-card {
-            display: inline-flex;
-            flex-direction: column;
-            align-items: flex-start;
-            gap: 10px;
-            margin-top: 26px;
-            padding: 14px;
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            background: var(--card-bg);
-            max-width: 100%;
-        }
-
-        .gl-ad-card .gl-ad-link { width: 160px; }
-
         .gl-ad-sticky {
             position: fixed;
             right: 18px;
@@ -2521,6 +2506,15 @@
             margin: 14px 0 0; min-height: 1.1em;
             font-size: 0.7rem; line-height: 1.6; color: var(--text-dim);
         }
+
+        .gl-ad-gate {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+            margin-top: 22px;
+        }
+        .gl-ad-gate .gl-ad-link { width: 160px; }
     </style>
     <div id="gl-auth-gate" role="dialog" aria-modal="true" aria-labelledby="gl-auth-title">
         <div class="gl-auth-card">
@@ -2540,6 +2534,15 @@
                 SIGN IN WITH GOOGLE
             </button>
             <p id="gl-auth-status">Connecting to Google…</p>
+            <aside class="gl-ad-gate" aria-label="Sponsored">
+                <span class="gl-ad-label">Sponsored</span>
+                <div class="gl-ad-banner" id="gl-ad-gate-160x300"></div>
+                <a class="gl-ad-link" id="gl-ad-gate-smartlink" href="https://arwf.org/4/2434e6dc4d557f6c6a101c132bc9422f" target="_blank" rel="sponsored noopener noreferrer">
+                    <span class="gl-ad-link-tag">Ad</span>
+                    <span class="gl-ad-link-title">GhostLink partner offer</span>
+                    <span class="gl-ad-link-cta">Open &rarr;</span>
+                </a>
+            </aside>
         </div>
     </div>
     <script>
@@ -9073,16 +9076,17 @@
             }
         });
     </script>
-        <script>
+            <script>
         /* ── ADSTERRA ADS ────────────────────────────────────────────────
-           One manager drives every placement:
-             • the home rail slot (#gl-ad-160x300)
-             • a sponsored card injected into each content view
-             • a dismissible floating unit that follows the user everywhere
-           Each banner runs in its own sandboxed srcdoc iframe, so the
-           repeated 160x300 snippet keeps its own `atOptions` global and the
-           creative can never reach GhostLink's storage or Firebase session.
-           Units mount lazily when they scroll into view. */
+           Three placements, each with high viewability:
+             • gate  (#gl-ad-gate-160x300) — seen by every visitor before sign-in
+             • home  (#gl-ad-160x300)      — top of the home view
+             • float (built below)         — follows the user into the proxy
+           The home and floating units wait for the gate to unlock, so a
+           signed-out visitor only ever loads the one gate creative. Each
+           banner runs in its own sandboxed srcdoc iframe, so repeated
+           snippets keep separate `atOptions` globals and never touch app
+           storage or the Firebase session. */
         (function () {
             var SMARTLINK = 'https://arwf.org/4/2434e6dc4d557f6c6a101c132bc9422f';
             var BANNER = {
@@ -9091,7 +9095,6 @@
                 height: 300,
                 src: 'https://bicea.org/22/24ff62f1c76f75346660e57259b585c3'
             };
-            var CARD_VIEWS = ['customapps', 'marketplace', 'settings', 'achievements-content', 'games-content'];
             var STICKY_KEY = 'gl_ad_sticky_dismissed';
             var STICKY_SNOOZE_MS = 12 * 60 * 60 * 1000;
 
@@ -9165,25 +9168,35 @@
                 return a;
             }
 
-            function createCard() {
-                var card = document.createElement('aside');
-                card.className = 'gl-ad-card';
-                card.setAttribute('aria-label', 'Sponsored');
-                card.appendChild(createLabel());
-                var slot = createBannerSlot();
-                card.appendChild(slot);
-                card.appendChild(createSmartlink());
-                return { card: card, slot: slot };
-            }
+            // Run `cb` straight away unless the sign-in gate is covering the
+            // page, in which case wait for it to unlock.
+            function whenGateUnlocked(cb) {
+                var gate = document.getElementById('gl-auth-gate');
+                if (!gate || gate.hidden) { cb(); return; }
 
-            function injectViewCards() {
-                CARD_VIEWS.forEach(function (id) {
-                    var view = document.getElementById(id);
-                    if (!view || view.querySelector('.gl-ad-card')) return;
-                    var built = createCard();
-                    view.appendChild(built.card);
-                    lazyMount(built.slot);
-                });
+                var settled = false;
+                var observer = null;
+
+                function release() {
+                    if (settled) return;
+                    settled = true;
+                    window.removeEventListener('ghostlink-cloud', onCloud);
+                    if (observer) observer.disconnect();
+                    cb();
+                }
+
+                function onCloud(event) {
+                    var state = event && event.detail && event.detail.state;
+                    if (state && state.signedIn) release();
+                }
+
+                if ('MutationObserver' in window) {
+                    observer = new MutationObserver(function () {
+                        if (gate.hidden) release();
+                    });
+                    observer.observe(gate, { attributes: true, attributeFilter: ['hidden'] });
+                }
+                window.addEventListener('ghostlink-cloud', onCloud);
             }
 
             function buildSticky() {
@@ -9217,11 +9230,15 @@
             }
 
             function initAds() {
-                var link = document.getElementById('gl-ad-smartlink');
-                if (link) link.href = SMARTLINK;
-                lazyMount(document.getElementById('gl-ad-160x300'));
-                injectViewCards();
-                buildSticky();
+                ['gl-ad-smartlink', 'gl-ad-gate-smartlink'].forEach(function (id) {
+                    var link = document.getElementById(id);
+                    if (link) link.href = SMARTLINK;
+                });
+                lazyMount(document.getElementById('gl-ad-gate-160x300'));
+                whenGateUnlocked(function () {
+                    lazyMount(document.getElementById('gl-ad-160x300'));
+                    buildSticky();
+                });
             }
 
             if (document.readyState === 'loading') {
