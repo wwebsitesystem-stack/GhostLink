@@ -13,6 +13,22 @@ adds the Google account and the Firebase-backed global refresh.
 The tutoring front that briefly sat in front of the proxy (the role-picker cover and
 `teacher.html`) is gone. It is still in git history at `4988bd1` if it is ever wanted.
 
+## Sign-in required
+
+GhostLink opens on a full-screen sign-in gate. Nothing behind it is reachable
+until a Google account is signed in, and signing out brings the gate back.
+
+- The gate lives in `index.html` and mirrors the session that
+  `global-refresh-client.js` already owns (the `ghostlink-cloud` event and
+  `window.GhostLinkCloud.getState()`); it reads `signedIn`, `ready`, `error` and
+  `notice` from that state.
+- If Google sign-in cannot load at all (offline, blocked `gstatic.com`, or a
+  domain that is not authorised in Firebase), the gate stays up and says so —
+  there is no guest path through it.
+- Like the staff gate, this is a client-side gate: anyone who edits the page in
+  devtools can uncover the UI. Hosting-level access control (for example
+  Cloudflare Access) and the Realtime Database rules are the real gate.
+
 ## Cloud account + global refresh
 
 Uses the existing **nexus-web-development-official** Firebase project (the same

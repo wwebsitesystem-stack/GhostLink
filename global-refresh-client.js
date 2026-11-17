@@ -183,6 +183,7 @@ function publicState() {
         photo: state.user?.photoURL || "",
         status: state.status,
         error: state.error,
+        notice: state.notice,
         tabs: state.tabs,
         lastSync: state.lastSync,
         staff: isStaff(state.user)
