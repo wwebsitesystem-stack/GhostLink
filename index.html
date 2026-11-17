@@ -2414,6 +2414,64 @@
             .gl-ad-rail { display: none; }
         }
 
+        .gl-ad-card {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+            margin-top: 26px;
+            padding: 14px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: var(--card-bg);
+            max-width: 100%;
+        }
+
+        .gl-ad-card .gl-ad-link { width: 160px; }
+
+        .gl-ad-sticky {
+            position: fixed;
+            right: 18px;
+            bottom: 46px;
+            z-index: 900;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: color-mix(in srgb, var(--bg) 92%, transparent);
+            backdrop-filter: blur(12px) saturate(180%);
+            box-shadow: 0 0 24px rgba(0, 0, 0, 0.55);
+        }
+
+        .gl-ad-sticky .gl-ad-link { width: 160px; }
+
+        .gl-ad-sticky-close {
+            position: absolute;
+            top: -9px;
+            right: -9px;
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1px solid var(--border);
+            background: var(--bg);
+            color: var(--text-dim);
+            font-family: var(--font);
+            font-size: 14px;
+            line-height: 1;
+            cursor: pointer;
+        }
+
+        .gl-ad-sticky-close:hover {
+            color: var(--accent);
+            border-color: var(--accent);
+        }
+
+        @media (max-width: 900px) {
+            .gl-ad-sticky { display: none; }
+        }
+
     </style>
 </head>
 <body>
@@ -9031,12 +9089,16 @@
             if (e.key === 'Escape' && overlay && overlay.style.display === 'flex') closeOwnerNotice();
         });
     </script>
-    <script>
+        <script>
         /* ── ADSTERRA ADS ────────────────────────────────────────────────
-           Smartlink: plain sponsored link under the banner.
-           Banner: the 160x300 snippet runs inside a sandboxed srcdoc iframe
-           so its `atOptions` global stays isolated from the app and the
-           creative cannot reach GhostLink's storage or Firebase session. */
+           One manager drives every placement:
+             • the home rail slot (#gl-ad-160x300)
+             • a sponsored card injected into each content view
+             • a dismissible floating unit that follows the user everywhere
+           Each banner runs in its own sandboxed srcdoc iframe, so the
+           repeated 160x300 snippet keeps its own `atOptions` global and the
+           creative can never reach GhostLink's storage or Firebase session.
+           Units mount lazily when they scroll into view. */
         (function () {
             var SMARTLINK = 'https://arwf.org/4/2434e6dc4d557f6c6a101c132bc9422f';
             var BANNER = {
@@ -9045,12 +9107,11 @@
                 height: 300,
                 src: 'https://bicea.org/22/24ff62f1c76f75346660e57259b585c3'
             };
+            var CARD_VIEWS = ['customapps', 'marketplace', 'settings', 'achievements-content', 'games-content'];
+            var STICKY_KEY = 'gl_ad_sticky_dismissed';
+            var STICKY_SNOOZE_MS = 12 * 60 * 60 * 1000;
 
-            function mountBanner() {
-                var slot = document.getElementById('gl-ad-160x300');
-                if (!slot || slot.dataset.loaded === '1') return;
-                slot.dataset.loaded = '1';
-
+            function buildFrame() {
                 var doc = '<!DOCTYPE html><html><head><meta charset="utf-8">'
                     + '<style>html,body{margin:0;padding:0;background:transparent;overflow:hidden;}</style>'
                     + '</head><body>'
@@ -9071,27 +9132,112 @@
                 frame.setAttribute('sandbox', 'allow-scripts allow-popups allow-popups-to-escape-sandbox allow-forms');
                 frame.setAttribute('referrerpolicy', 'no-referrer-when-downgrade');
                 frame.srcdoc = doc;
-                slot.appendChild(frame);
+                return frame;
             }
 
-            // Ad creatives only render reliably once the home view is visible.
-            function whenHomeVisible(cb) {
-                var home = document.getElementById('home-content');
-                if (!home) return;
-                if (home.offsetParent !== null) { cb(); return; }
-                var observer = new MutationObserver(function () {
-                    if (home.offsetParent !== null) {
-                        observer.disconnect();
-                        cb();
-                    }
+            function mountBanner(slot) {
+                if (!slot || slot.dataset.loaded === '1') return;
+                slot.dataset.loaded = '1';
+                slot.appendChild(buildFrame());
+            }
+
+            function lazyMount(slot) {
+                if (!slot || slot.dataset.glAdBound === '1') return;
+                slot.dataset.glAdBound = '1';
+                if (!('IntersectionObserver' in window)) { mountBanner(slot); return; }
+                var io = new IntersectionObserver(function (entries) {
+                    entries.forEach(function (entry) {
+                        if (entry.isIntersecting) {
+                            io.disconnect();
+                            mountBanner(slot);
+                        }
+                    });
+                }, { rootMargin: '250px' });
+                io.observe(slot);
+            }
+
+            function createLabel() {
+                var label = document.createElement('span');
+                label.className = 'gl-ad-label';
+                label.textContent = 'Sponsored';
+                return label;
+            }
+
+            function createBannerSlot() {
+                var slot = document.createElement('div');
+                slot.className = 'gl-ad-banner';
+                return slot;
+            }
+
+            function createSmartlink() {
+                var a = document.createElement('a');
+                a.className = 'gl-ad-link';
+                a.href = SMARTLINK;
+                a.target = '_blank';
+                a.rel = 'sponsored noopener noreferrer';
+                a.innerHTML = '<span class="gl-ad-link-tag">Ad</span>'
+                    + '<span class="gl-ad-link-title">GhostLink partner offer</span>'
+                    + '<span class="gl-ad-link-cta">Open &rarr;</span>';
+                return a;
+            }
+
+            function createCard() {
+                var card = document.createElement('aside');
+                card.className = 'gl-ad-card';
+                card.setAttribute('aria-label', 'Sponsored');
+                card.appendChild(createLabel());
+                var slot = createBannerSlot();
+                card.appendChild(slot);
+                card.appendChild(createSmartlink());
+                return { card: card, slot: slot };
+            }
+
+            function injectViewCards() {
+                CARD_VIEWS.forEach(function (id) {
+                    var view = document.getElementById(id);
+                    if (!view || view.querySelector('.gl-ad-card')) return;
+                    var built = createCard();
+                    view.appendChild(built.card);
+                    lazyMount(built.slot);
                 });
-                observer.observe(home, { attributes: true, attributeFilter: ['style', 'class'] });
+            }
+
+            function buildSticky() {
+                var dismissed = 0;
+                try { dismissed = Number(localStorage.getItem(STICKY_KEY)) || 0; } catch (e) {}
+                if (dismissed && (Date.now() - dismissed) < STICKY_SNOOZE_MS) return;
+
+                var wrap = document.createElement('aside');
+                wrap.className = 'gl-ad-sticky';
+                wrap.setAttribute('aria-label', 'Sponsored');
+
+                var close = document.createElement('button');
+                close.type = 'button';
+                close.className = 'gl-ad-sticky-close';
+                close.title = 'Hide this ad';
+                close.textContent = '×';
+                close.addEventListener('click', function () {
+                    wrap.remove();
+                    try { localStorage.setItem(STICKY_KEY, String(Date.now())); } catch (e) {}
+                });
+
+                var slot = createBannerSlot();
+                wrap.appendChild(close);
+                wrap.appendChild(createLabel());
+                wrap.appendChild(slot);
+                wrap.appendChild(createSmartlink());
+                document.body.appendChild(wrap);
+
+                var schedule = window.requestIdleCallback || function (fn) { return setTimeout(fn, 1200); };
+                schedule(function () { mountBanner(slot); });
             }
 
             function initAds() {
                 var link = document.getElementById('gl-ad-smartlink');
                 if (link) link.href = SMARTLINK;
-                whenHomeVisible(mountBanner);
+                lazyMount(document.getElementById('gl-ad-160x300'));
+                injectViewCards();
+                buildSticky();
             }
 
             if (document.readyState === 'loading') {
