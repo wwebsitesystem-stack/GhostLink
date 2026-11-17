@@ -387,14 +387,27 @@ function buildSupportPage() {
     return page;
 }
 
+// Fallback for when the app's nav() is not available yet.
 function showSupport() {
     const page = buildSupportPage();
     document.querySelectorAll(".view-section").forEach((section) => { section.style.display = "none"; });
+    ["app-frame", "home-hud", "social-hud", "zoneViewer"].forEach((id) => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = "none";
+    });
     page.style.display = "block";
     document.querySelectorAll(".nav-item").forEach((item) => item.classList.remove("active"));
     const navItem = document.getElementById(SUPPORT_NAV_ID);
     if (navItem) navItem.classList.add("active");
     refreshSupport();
+}
+
+function openSupport() {
+    if (typeof window.nav === "function") {
+        window.nav("support");
+        return;
+    }
+    showSupport();
 }
 
 function ensureSupportNav() {
@@ -406,7 +419,7 @@ function ensureSupportNav() {
     item.dataset.id = "support";
     item.title = "Support and staff moderation";
     item.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Support</span>';
-    item.addEventListener("click", showSupport);
+    item.addEventListener("click", openSupport);
     bottom.appendChild(item);
 }
 
@@ -420,16 +433,20 @@ function watchSidebar() {
     ensureSupportNav();
 }
 
-// The app's nav() only knows its own sections, so hide Support whenever it is
-// used for another page.
+// The app's nav() only knows its own sections. Let it clear the frame, HUDs and
+// any open game zone for "support", then show this page; hide it otherwise.
 function wrapNav() {
     const base = window.nav;
     if (typeof base !== "function" || base.__glBanWrap) return;
     const wrapped = function (page, appData) {
-        if (page !== "support") {
-            const support = document.getElementById(SUPPORT_PAGE_ID);
-            if (support) support.style.display = "none";
+        const support = document.getElementById(SUPPORT_PAGE_ID);
+        if (page === "support") {
+            const result = base.call(this, page, appData);
+            if (support) support.style.display = "block";
+            refreshSupport();
+            return result;
         }
+        if (support) support.style.display = "none";
         return base.call(this, page, appData);
     };
     wrapped.__glBanWrap = true;
@@ -542,7 +559,7 @@ window.GhostLinkBans = {
     banEmail,
     unban,
     refresh: refreshSupport,
-    show: showSupport
+    show: openSupport
 };
 
 buildSupportPage();
