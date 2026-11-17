@@ -285,7 +285,18 @@
         }
 
 
+        /* --- SUPPORT LINK --- */
+        .sidebar-support {
+            width: 100%;
+            border-top: 1px solid var(--border);
+            padding-top: 10px;
+            display: flex;
+            flex-direction: column;
+            flex-shrink: 0;
+        }
+
         /* --- CLOUD ACCOUNT --- */
+
         .sidebar-account-wrap {
             width: 100%;
             border-top: 1px solid var(--border);
@@ -2588,6 +2599,11 @@
         <div class="logo-box" onclick="openReadmeModal()" title="View README" style="cursor:pointer;">◈</div>
         <div class="nav-group" id="sidebar-nav-top"></div>
         <div class="sidebar-bottom" id="sidebar-nav-bottom"></div>
+        <div class="sidebar-support">
+            <a class="nav-item" href="https://textnexus.me/#support.html" target="_blank" rel="noopener" title="Support">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Support</span>
+            </a>
+        </div>
         <div class="sidebar-account-wrap">
             <button class="sidebar-account" id="gl-sidebar-account" title="Sign in with Google" type="button">
                 <span class="sidebar-account-icon">
@@ -9055,38 +9071,6 @@
                 document.getElementById('rip-xrevan-overlay').style.display === 'flex') {
                 closeRipXrevanModal();
             }
-        });
-    </script>
-    <!-- NEXUS OWNERSHIP NOTICE -->
-    <div class="readme-overlay" id="owner-notice-overlay" style="display:none; z-index:100001;" onclick="if(event.target===this)closeOwnerNotice()">
-        <div class="readme-modal" style="max-width:560px;">
-            <div class="readme-header">
-                <div class="readme-tabs"><div style="font-size:0.7rem; letter-spacing:2px; text-transform:uppercase; color:var(--accent); padding:6px 10px;">&#9672; Official Notice</div></div>
-                <button class="readme-close" onclick="closeOwnerNotice()" title="Close">&#10005;</button>
-            </div>
-            <div class="readme-panel active" style="padding:28px;">
-                <h2 style="color:var(--accent); text-shadow:0 0 10px var(--accent-glow); font-size:1.15rem; letter-spacing:1px; margin-bottom:14px; line-height:1.35;">Nexus Ownership Notice</h2>
-                <p style="color:#d1d5db; font-size:0.9rem; line-height:1.75; margin-bottom:14px;">People have been acting like they own Nexus.</p>
-                <p style="color:var(--text-dim); font-size:0.9rem; line-height:1.75; margin-bottom:14px;">To make this clear: the official owner on Nexus is <strong style="color:var(--accent); text-shadow:0 0 10px var(--accent-glow); letter-spacing:0.5px;">Brody Williams</strong>.</p>
-                <p style="font-size:0.85rem; line-height:1.6; margin-bottom:20px;"><a href="https://textnexus.me/support.html" target="_blank" rel="noopener" style="color:var(--accent); text-decoration:underline; text-underline-offset:3px;">View ownership proof &rarr;</a></p>
-                <button class="btn-start" onclick="closeOwnerNotice()" style="width:100%; margin-top:0;">Understood</button>
-            </div>
-        </div>
-    </div>
-    <script>
-        function openOwnerNotice() {
-            const overlay = document.getElementById('owner-notice-overlay');
-            if (overlay) overlay.style.display = 'flex';
-        }
-        function closeOwnerNotice() {
-            document.getElementById('owner-notice-overlay').style.display = 'none';
-        }
-        // Show the ownership notice every time the site is opened.
-        document.addEventListener('DOMContentLoaded', openOwnerNotice);
-        if (document.readyState !== 'loading') openOwnerNotice();
-        document.addEventListener('keydown', function(e) {
-            const overlay = document.getElementById('owner-notice-overlay');
-            if (e.key === 'Escape' && overlay && overlay.style.display === 'flex') closeOwnerNotice();
         });
     </script>
         <script>
