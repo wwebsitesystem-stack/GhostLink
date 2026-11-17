@@ -12,28 +12,28 @@
  * which is world-readable. The read happens server-side, so a visitor cannot
  * interfere with it, and the answer is cached for a few seconds.
  *
- * The notice pages, their script and /system-console.html (staff-gated in the
- * browser) stay reachable so the mode can be switched back. If the status
- * cannot be read and nothing is cached, requests pass through — a database
- * hiccup must never take the whole site down.
+ * The blocked response is a self-contained notice rather than one of the
+ * notice pages: those pages load system.js, and loading the gate inside the
+ * gate would frame the notice forever. Only /system-console.html (staff-gated
+ * in the browser) and the scripts it needs stay reachable, so the mode can be
+ * switched back. If the status cannot be read and nothing is cached, requests
+ * pass through — a database hiccup must never take the whole site down.
  */
 
 const SYSTEM_BASE = "https://nexus-web-development-official-default-rtdb.firebaseio.com";
 const CACHE_MS = 10_000;
 
-// Blocking modes and the notice page each one shows.
+// Blocking modes and the label their notice uses.
 const BLOCKING = new Map([
-  ["maintenance", "/maintenance.html"],
-  ["lockdown", "/lockdown.html"],
-  ["offline", "/offline.html"]
+  ["maintenance", "maintenance"],
+  ["lockdown", "lockdown"],
+  ["offline", "shut down"]
 ]);
 
-// The only paths that keep working while a blocking mode is active: the notice
-// pages, the scripts they need, and the staff console used to lift the mode.
+// The only paths that keep working while a blocking mode is active: the staff
+// console used to lift the mode, and the scripts it loads.
 const ALLOWED = new Set([
-  "/offline.html",
-  "/lockdown.html",
-  "/maintenance.html",
+  "/system-console",
   "/system-console.html",
   "/system.js",
   "/realtime-refresh.js",
@@ -93,8 +93,8 @@ function pathname(url) {
   return path || "/";
 }
 
-function fallbackPage(mode) {
-  const label = mode === "offline" ? "shut down" : mode;
+function noticePage(mode) {
+  const label = BLOCKING.get(mode) || mode;
   return `<!doctype html>
 <html lang="en">
 <head>
@@ -122,44 +122,27 @@ function fallbackPage(mode) {
     <span class="badge">${label}</span>
     <h1>GhostLink is ${label}.</h1>
     <p>GhostLink has been taken offline on purpose. Nothing has been deleted — it will be turned back on by the team.</p>
-    <a href="/system-console.html">Staff access</a>
+    <a href="/system-console">Staff access</a>
   </div>
 </body>
 </html>`;
 }
 
-async function noticeResponse(request, url, env, mode) {
-  const headers = new Headers();
-  let body = null;
-  let contentType = "text/html; charset=utf-8";
-
-  try {
-    if (env?.ASSETS?.fetch) {
-      const page = await env.ASSETS.fetch(new URL(BLOCKING.get(mode), url.origin).toString());
-      if (page.ok) {
-        contentType = page.headers.get("content-type") || contentType;
-        for (const [name, value] of page.headers) headers.set(name, value);
-        body = await page.arrayBuffer();
-      }
-    }
-  } catch (error) {
-    console.warn("GhostLink notice page could not be loaded:", error?.message || error);
-  }
-
-  if (!body) body = new TextEncoder().encode(fallbackPage(mode));
-
-  headers.set("content-type", contentType);
-  headers.set("cache-control", "no-store");
-  headers.set("retry-after", "60");
-  headers.set("x-nexus-mode", mode);
-  return new Response(request.method === "HEAD" ? null : body, { status: 503, headers });
-}
-
 export async function onRequest(context) {
-  const { request, next, env } = context;
+  const { request, next } = context;
   const url = new URL(request.url);
   const mode = await currentMode();
   if (!mode) return next();
   if (ALLOWED.has(pathname(url))) return next();
-  return noticeResponse(request, url, env, mode);
+
+  const html = noticePage(mode);
+  return new Response(request.method === "HEAD" ? null : html, {
+    status: 503,
+    headers: {
+      "content-type": "text/html; charset=utf-8",
+      "cache-control": "no-store",
+      "retry-after": "60",
+      "x-nexus-mode": mode
+    }
+  });
 }
