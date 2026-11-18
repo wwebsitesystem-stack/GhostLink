@@ -15,14 +15,20 @@ function addLocalGames(localGames) {
     // script in index.html. It is a global lexical binding, not window.zones.
     if (typeof zones === "undefined" || !Array.isArray(zones)) return;
 
+    // A card opens `source` when both fields exist, so a bundled game has to
+    // point that at its own file instead of at the upstream project page.
+    const entries = localGames.map((game) => (
+        game.local ? Object.assign({}, game, { source: game.url }) : game
+    ));
+
     const replaced = new Set(
-        localGames
+        entries
             .filter((game) => game.replaces !== undefined)
             .map((game) => String(game.replaces))
     );
     const kept = zones.filter((zone) => !replaced.has(String(zone.id)));
     const known = new Set(kept.map((zone) => String(zone.id)));
-    const missing = localGames.filter((game) => !known.has(String(game.id)));
+    const missing = entries.filter((game) => !known.has(String(game.id)));
 
     if (!missing.length && kept.length === zones.length) return;
 
