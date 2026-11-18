@@ -1,0 +1,1016 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Papers Pls</title>
+<style>
+    :root {
+        --ink: #e9e3d2;
+        --muted: #98a094;
+        --paper: #efe6cf;
+        --paper-ink: #23211b;
+        --paper-dim: #6d6757;
+        --line: rgba(233, 227, 210, 0.14);
+        --accent: #d9c27a;
+        --ok: #7fd18b;
+        --bad: #e2564a;
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+        margin: 0;
+        padding: 14px;
+        display: flex;
+        justify-content: center;
+        background: radial-gradient(1100px 620px at 50% -12%, #1c261e, #070a08 72%);
+        color: var(--ink);
+        font-family: ui-monospace, "SFMono-Regular", "Courier New", monospace;
+        overflow: hidden;
+    }
+
+    button { font: inherit; }
+
+    #app {
+        width: 100%;
+        max-width: 1020px;
+        height: calc(100vh - 28px);
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(0, 0, 0, 0.35));
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.55);
+        overflow: hidden;
+    }
+
+    .hud {
+        display: flex;
+        align-items: center;
+        gap: 18px;
+        flex-wrap: wrap;
+        padding: 10px 16px;
+        border-bottom: 1px solid var(--line);
+        background: rgba(0, 0, 0, 0.28);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+
+    .hud b {
+        color: var(--ink);
+        font-size: 13px;
+        letter-spacing: 0.06em;
+    }
+
+    .hud .spacer { flex: 1; }
+
+    .strikes { display: flex; gap: 5px; align-items: center; }
+
+    .strike-dot {
+        width: 13px;
+        height: 13px;
+        border-radius: 3px;
+        border: 1px solid rgba(226, 86, 74, 0.5);
+    }
+
+    .strike-dot.on { background: var(--bad); border-color: var(--bad); }
+
+    main {
+        flex: 1;
+        min-height: 0;
+        overflow-y: auto;
+        padding: 18px;
+    }
+
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ---------- start + day + end ---------- */
+
+    .panel {
+        max-width: 620px;
+        margin: 4vh auto;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: rgba(9, 14, 11, 0.72);
+        padding: 30px 28px;
+        text-align: center;
+    }
+
+    .eyebrow {
+        display: inline-block;
+        border: 1px solid rgba(217, 194, 122, 0.4);
+        color: var(--accent);
+        border-radius: 999px;
+        padding: 4px 11px;
+        font-size: 9px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        margin-bottom: 16px;
+    }
+
+    h1 {
+        margin: 0 0 10px;
+        font-size: clamp(2.1rem, 7vw, 3.6rem);
+        letter-spacing: 0.12em;
+        line-height: 1;
+    }
+
+    h1 span { color: var(--accent); }
+
+    .lede {
+        margin: 0 auto 20px;
+        max-width: 44ch;
+        color: var(--muted);
+        font-size: 12.5px;
+        line-height: 1.75;
+    }
+
+    .brief {
+        text-align: left;
+        border-top: 1px dashed var(--line);
+        border-bottom: 1px dashed var(--line);
+        padding: 14px 0;
+        margin: 0 0 22px;
+        font-size: 12px;
+        line-height: 1.85;
+        color: var(--muted);
+    }
+
+    .brief b { color: var(--ink); }
+
+    .key {
+        display: inline-block;
+        border: 1px solid var(--line);
+        border-bottom-width: 2px;
+        border-radius: 4px;
+        padding: 0 5px;
+        color: var(--ink);
+        font-size: 11px;
+    }
+
+    .btn {
+        border: 1px solid var(--accent);
+        background: var(--accent);
+        color: #16180f;
+        border-radius: 8px;
+        padding: 12px 24px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: transform 0.12s ease, filter 0.12s ease;
+    }
+
+    .btn:hover { filter: brightness(1.08); }
+    .btn:active { transform: translateY(1px); }
+
+    .btn.ghost {
+        background: transparent;
+        color: var(--ink);
+        border-color: var(--line);
+    }
+
+    .rules-list {
+        text-align: left;
+        margin: 0 0 22px;
+        padding: 0;
+        list-style: none;
+        counter-reset: rule;
+    }
+
+    .rules-list li {
+        position: relative;
+        padding: 9px 0 9px 30px;
+        border-bottom: 1px dashed var(--line);
+        font-size: 12px;
+        line-height: 1.6;
+    }
+
+    .rules-list li:last-child { border-bottom: 0; }
+
+    .rules-list li::before {
+        counter-increment: rule;
+        content: counter(rule, decimal-leading-zero);
+        position: absolute;
+        left: 0;
+        top: 9px;
+        color: var(--accent);
+        font-size: 10px;
+        letter-spacing: 0.08em;
+    }
+
+    .rules-list .new {
+        color: var(--accent);
+        border: 1px solid rgba(217, 194, 122, 0.35);
+        border-radius: 3px;
+        font-size: 8px;
+        letter-spacing: 0.14em;
+        padding: 1px 5px;
+        margin-left: 7px;
+        vertical-align: 1px;
+        text-transform: uppercase;
+    }
+
+    .score-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin: 0 0 22px;
+    }
+
+    .score-cell {
+        border: 1px solid var(--line);
+        border-radius: 8px;
+        padding: 12px 8px;
+    }
+
+    .score-cell span {
+        display: block;
+        font-size: 9px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        color: var(--muted);
+        margin-bottom: 6px;
+    }
+
+    .score-cell b { font-size: 20px; }
+
+    /* ---------- desk ---------- */
+
+    .desk {
+        display: grid;
+        grid-template-columns: 268px minmax(0, 1fr);
+        gap: 18px;
+        align-items: start;
+    }
+
+    .rulebook {
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        background: rgba(0, 0, 0, 0.28);
+        padding: 14px 16px;
+    }
+
+    .rulebook h2 {
+        margin: 0 0 4px;
+        font-size: 10px;
+        letter-spacing: 0.2em;
+        text-transform: uppercase;
+        color: var(--accent);
+    }
+
+    .rulebook .subtle {
+        margin: 0 0 12px;
+        font-size: 9.5px;
+        color: var(--muted);
+        letter-spacing: 0.04em;
+    }
+
+    .rulebook ol {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        counter-reset: rb;
+    }
+
+    .rulebook li {
+        position: relative;
+        counter-increment: rb;
+        padding: 8px 0 8px 24px;
+        font-size: 11px;
+        line-height: 1.55;
+        border-top: 1px dashed var(--line);
+    }
+
+    .rulebook li:first-child { border-top: 0; }
+
+    .rulebook li::before {
+        content: counter(rb, decimal-leading-zero);
+        position: absolute;
+        left: 0;
+        top: 8px;
+        font-size: 9px;
+        color: var(--accent);
+    }
+
+    .documents {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(255px, 1fr));
+        gap: 18px;
+    }
+
+    .doc {
+        position: relative;
+        background: var(--paper);
+        color: var(--paper-ink);
+        border-radius: 4px;
+        padding: 14px 16px 16px;
+        box-shadow: 0 16px 30px rgba(0, 0, 0, 0.45);
+        font-size: 11px;
+        line-height: 1.45;
+        transform: rotate(-0.6deg);
+    }
+
+    .doc.permit { transform: rotate(0.7deg); }
+
+    .doc::after {
+        content: "ARSTOTZKA // BORDER CONTROL";
+        position: absolute;
+        right: 12px;
+        bottom: 8px;
+        font-size: 6.5px;
+        letter-spacing: 0.16em;
+        color: rgba(35, 33, 27, 0.32);
+    }
+
+    .doc-head {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 10px;
+        border-bottom: 2px solid var(--paper-ink);
+        padding-bottom: 6px;
+        margin-bottom: 10px;
+    }
+
+    .doc-head strong {
+        font-size: 12px;
+        letter-spacing: 0.16em;
+    }
+
+    .doc-head em {
+        font-style: normal;
+        font-size: 8px;
+        letter-spacing: 0.16em;
+        color: var(--paper-dim);
+    }
+
+    .doc-top {
+        display: grid;
+        grid-template-columns: 62px 1fr;
+        gap: 12px;
+        margin-bottom: 10px;
+    }
+
+    .photo {
+        width: 62px;
+        height: 76px;
+        border: 1px solid rgba(35, 33, 27, 0.45);
+        background: #d8cfb8;
+        position: relative;
+        overflow: hidden;
+        filter: grayscale(1) contrast(1.08) sepia(0.25);
+    }
+
+    .photo i,
+    .photo b {
+        position: absolute;
+        left: 50%;
+        transform: translateX(-50%);
+        display: block;
+        background: var(--skin, #7a6a58);
+    }
+
+    .photo i {
+        top: 16px;
+        width: 30px;
+        height: 32px;
+        border-radius: 46% 46% 42% 42%;
+    }
+
+    .photo b {
+        top: 50px;
+        width: 52px;
+        height: 34px;
+        border-radius: 46% 46% 0 0;
+        background: var(--coat, #4a4a42);
+    }
+
+    .photo em {
+        position: absolute;
+        inset: 0;
+        background:
+            repeating-linear-gradient(0deg, rgba(255, 255, 255, 0.06) 0 1px, transparent 1px 3px),
+            linear-gradient(160deg, rgba(255, 255, 255, 0.35), transparent 55%);
+        font-style: normal;
+    }
+
+    .passport-name {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        margin-bottom: 8px;
+        line-height: 1.25;
+    }
+
+    .fields { display: grid; gap: 5px; }
+
+    .field {
+        display: flex;
+        justify-content: space-between;
+        gap: 10px;
+        border-bottom: 1px dotted rgba(35, 33, 27, 0.25);
+        padding-bottom: 3px;
+    }
+
+    .field span {
+        font-size: 8px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--paper-dim);
+        white-space: nowrap;
+    }
+
+    .field b {
+        font-size: 10.5px;
+        text-align: right;
+        letter-spacing: 0.03em;
+        font-weight: 600;
+        word-break: break-word;
+    }
+
+    .stamp-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 10px;
+        margin-top: 10px;
+    }
+
+    .sponsor {
+        border: 1.5px solid rgba(35, 33, 27, 0.55);
+        border-radius: 3px;
+        padding: 4px 7px;
+        font-size: 8px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+        transform: rotate(-4deg);
+        color: rgba(35, 33, 27, 0.72);
+    }
+
+    .sponsor.missing {
+        border-style: dashed;
+        border-color: rgba(35, 33, 27, 0.3);
+        color: rgba(35, 33, 27, 0.42);
+    }
+
+    .barcode {
+        height: 22px;
+        width: 86px;
+        background: repeating-linear-gradient(90deg, rgba(35, 33, 27, 0.78) 0 2px, transparent 2px 4px, rgba(35, 33, 27, 0.7) 4px 5px, transparent 5px 8px);
+        opacity: 0.75;
+    }
+
+    /* ---------- verdict ---------- */
+
+    .verdict {
+        display: flex;
+        gap: 10px;
+        padding: 12px 16px;
+        border-top: 1px solid var(--line);
+        background: rgba(0, 0, 0, 0.3);
+    }
+
+    .verdict .btn { flex: 1; padding: 13px 10px; border-radius: 7px; }
+
+    .verdict .approve {
+        background: rgba(127, 209, 139, 0.14);
+        border-color: rgba(127, 209, 139, 0.65);
+        color: var(--ok);
+    }
+
+    .verdict .deny {
+        background: rgba(226, 86, 74, 0.14);
+        border-color: rgba(226, 86, 74, 0.65);
+        color: var(--bad);
+    }
+
+    .verdict .hint {
+        flex: 0 0 auto;
+        align-self: center;
+        color: var(--muted);
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        padding-right: 4px;
+    }
+
+    /* ---------- result overlay ---------- */
+
+    #result {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        background: rgba(4, 7, 5, 0.6);
+        backdrop-filter: blur(3px);
+        z-index: 10;
+        padding: 20px;
+    }
+
+    #result.show { display: flex; }
+
+    .result-card {
+        width: 100%;
+        max-width: 420px;
+        border: 1px solid var(--line);
+        border-radius: 12px;
+        background: #0b110d;
+        padding: 22px;
+        text-align: center;
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    }
+
+    .result-card .stamp {
+        display: inline-block;
+        border: 3px solid currentColor;
+        border-radius: 5px;
+        padding: 6px 16px;
+        font-size: 20px;
+        font-weight: 700;
+        letter-spacing: 0.18em;
+        transform: rotate(-5deg);
+        margin-bottom: 14px;
+        animation: thump 0.28s ease-out;
+    }
+
+    .result-card.good .stamp { color: var(--ok); }
+    .result-card.bad .stamp { color: var(--bad); }
+
+    @keyframes thump {
+        from { transform: rotate(-5deg) scale(2.1); opacity: 0; }
+        to { transform: rotate(-5deg) scale(1); opacity: 1; }
+    }
+
+    .result-card p {
+        margin: 0;
+        font-size: 12px;
+        line-height: 1.7;
+        color: var(--muted);
+    }
+
+    .result-card p b { color: var(--ink); }
+
+    @media (max-width: 760px) {
+        .desk { grid-template-columns: 1fr; }
+        .rulebook { order: 2; }
+        .documents { grid-template-columns: 1fr; }
+        .verdict .hint { display: none; }
+        .panel { margin: 10px auto; padding: 24px 20px; }
+        .score-grid { gap: 6px; }
+    }
+</style>
+</head>
+<body>
+<div id="app">
+    <div class="hud">
+        <div>Shift <b id="hud-day">1</b>/3</div>
+        <div>Credits <b id="hud-credits">0</b></div>
+        <div class="strikes">Strikes <span class="strike-dot" id="s0"></span><span class="strike-dot" id="s1"></span><span class="strike-dot" id="s2"></span></div>
+        <div class="spacer"></div>
+        <div id="hud-date">18 NOV 2026</div>
+    </div>
+
+    <main>
+        <section class="screen active" id="screen-start">
+            <div class="panel">
+                <span class="eyebrow">Border Control // Night Shift</span>
+                <h1>PAPERS <span>PLS</span></h1>
+                <p class="lede">Six travellers a night, three nights. Check every passport and entry permit against the rulebook, then stamp the papers. Three mistakes and your shift is over.</p>
+                <div class="brief">
+                    <b>How to play:</b> read the rulebook on the left of the desk, compare the two documents, then press <b>Approve</b> or <b>Deny</b>.<br>
+                    Keyboard: <span class="key">A</span> approve &middot; <span class="key">D</span> deny.<br>
+                    Correct call: <b>+25 credits</b>. Wrong call: a strike and a <b>10 credit</b> fine.
+                </div>
+                <button class="btn" id="start-btn">Begin shift</button>
+            </div>
+        </section>
+
+        <section class="screen" id="screen-game">
+            <div class="desk">
+                <aside class="rulebook">
+                    <h2>Rulebook</h2>
+                    <p class="subtle" id="rulebook-day">Night 1 &middot; rules in force</p>
+                    <ol id="rulebook-list"></ol>
+                </aside>
+
+                <div class="documents">
+                    <article class="doc passport">
+                        <div class="doc-head"><strong>PASSPORT</strong><em id="pp-country">ARSTOTZKA</em></div>
+                        <div class="doc-top">
+                            <div class="photo" id="pp-photo"><i></i><b></b><em></em></div>
+                            <div>
+                                <div class="passport-name" id="pp-name">NAME</div>
+                                <div class="fields">
+                                    <div class="field"><span>Passport no.</span><b id="pp-number">NX-0000</b></div>
+                                    <div class="field"><span>Born</span><b id="pp-born">01 JAN 1990</b></div>
+                                    <div class="field"><span>Expires</span><b id="pp-expiry">01 JAN 2030</b></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="stamp-row">
+                            <span class="sponsor missing">Border control</span>
+                            <div class="barcode"></div>
+                        </div>
+                    </article>
+
+                    <article class="doc permit">
+                        <div class="doc-head"><strong>ENTRY PERMIT</strong><em>FORM 4-C</em></div>
+                        <div class="fields">
+                            <div class="field"><span>Name</span><b id="pm-name">NAME</b></div>
+                            <div class="field"><span>Permit no.</span><b id="pm-number">NX-0000</b></div>
+                            <div class="field"><span>Purpose</span><b id="pm-purpose">VISIT</b></div>
+                            <div class="field"><span>Stay</span><b id="pm-days">1 DAY</b></div>
+                            <div class="field"><span>Issued</span><b id="pm-issued">18 NOV 2026</b></div>
+                        </div>
+                        <div class="stamp-row">
+                            <span class="sponsor" id="pm-stamp">Sponsor stamp</span>
+                            <div class="barcode"></div>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="screen" id="screen-day">
+            <div class="panel">
+                <span class="eyebrow" id="day-eyebrow">Shift report</span>
+                <h1 id="day-title">Night 1 complete</h1>
+                <p class="lede" id="day-lede">The queue is clear. New rules are on the board for the next shift.</p>
+                <ol class="rules-list" id="day-rules"></ol>
+                <button class="btn" id="day-btn">Start night 2</button>
+            </div>
+        </section>
+
+        <section class="screen" id="screen-end">
+            <div class="panel">
+                <span class="eyebrow">Shift report</span>
+                <h1 id="end-title">Shift over</h1>
+                <p class="lede" id="end-lede">The border closes.</p>
+                <div class="score-grid">
+                    <div class="score-cell"><span>Credits</span><b id="end-credits">0</b></div>
+                    <div class="score-cell"><span>Correct</span><b id="end-correct">0</b></div>
+                    <div class="score-cell"><span>Rank</span><b id="end-rank">Clerk</b></div>
+                </div>
+                <button class="btn" id="again-btn">Take another shift</button>
+            </div>
+        </section>
+    </main>
+
+    <div class="verdict" id="verdict-bar">
+        <button class="btn approve" id="approve-btn">Approve <span class="key">A</span></button>
+        <span class="hint">Stamp the papers</span>
+        <button class="btn deny" id="deny-btn">Deny <span class="key">D</span></button>
+    </div>
+</div>
+
+<div id="result" role="status" aria-live="polite">
+    <div class="result-card" id="result-card">
+        <div class="stamp" id="result-stamp">APPROVED</div>
+        <p id="result-text"></p>
+    </div>
+</div>
+
+<script>
+(function () {
+    'use strict';
+
+    var FIRST = ['Ada', 'Boris', 'Cora', 'Dmitri', 'Elena', 'Fyodor', 'Greta', 'Hassan', 'Iris', 'Jonas', 'Kira', 'Lev', 'Mira', 'Nikolai', 'Oskar', 'Petra', 'Quinn', 'Rosa', 'Sasha', 'Tomas'];
+    var LAST = ['Voss', 'Kard', 'Melnik', 'Orlov', 'Petrov', 'Sokol', 'Tanner', 'Varga', 'Weiss', 'Zima', 'Brandt', 'Costa', 'Dane', 'Engel', 'Falk', 'Grimm', 'Holt', 'Ivanov', 'Jansen', 'Kraus'];
+    var COUNTRIES = ['Arstotzka', 'Kolechia', 'Vostok', 'Karsk', 'Obristan', 'Antegria'];
+    var PURPOSES = ['Visit', 'Work', 'Transit'];
+    var PER_DAY = 6;
+    var ENDING_DAY = 3;
+    var START_DATE = new Date(2026, 10, 18);
+
+    var RULES = [
+        { id: 'expired', day: 1, text: 'Passports must still be valid on the day of entry.', test: function (t) { return t.passport.expiry < t.stampDate; } },
+        { id: 'name', day: 1, text: 'The name on the permit must match the passport.', test: function (t) { return t.passport.name !== t.permit.name; } },
+        { id: 'number', day: 2, text: 'The permit number must match the passport number.', test: function (t) { return t.passport.number !== t.permit.number; } },
+        { id: 'karsk', day: 2, text: 'Citizens of Karsk may only enter for work.', test: function (t) { return t.passport.country === 'Karsk' && t.permit.purpose !== 'Work'; } },
+        { id: 'vostok', day: 3, text: 'Citizens of Vostok are denied entry.', test: function (t) { return t.passport.country === 'Vostok'; } },
+        { id: 'stay', day: 3, text: 'Stays longer than 14 days need a sponsor stamp.', test: function (t) { return t.permit.days > 14 && !t.permit.stamp; } }
+    ];
+
+    var state = { day: 1, index: 0, credits: 0, strikes: 0, correct: 0, busy: false, traveler: null };
+    var resultTimer = null;
+
+    function $(id) { return document.getElementById(id); }
+
+    function pick(list) { return list[Math.floor(Math.random() * list.length)]; }
+
+    function pad(n) { return n < 10 ? '0' + n : String(n); }
+
+    function iso(date) {
+        return date.getFullYear() + '-' + pad(date.getMonth() + 1) + '-' + pad(date.getDate());
+    }
+
+    function addDays(date, days) {
+        var copy = new Date(date.getTime());
+        copy.setDate(copy.getDate() + days);
+        return copy;
+    }
+
+    function pretty(isoDate) {
+        var parts = String(isoDate).split('-');
+        var months = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'];
+        return parts[2] + ' ' + months[Number(parts[1]) - 1] + ' ' + parts[0];
+    }
+
+    function shiftDate() { return addDays(START_DATE, state.day - 1); }
+
+    function makeNumber() { return 'NX-' + (1000 + Math.floor(Math.random() * 9000)); }
+
+    function makeAvatar(name, country) {
+        var hash = 0;
+        for (var i = 0; i < name.length + country.length; i++) {
+            hash = (hash * 31 + (name + country).charCodeAt(i % (name + country).length)) % 9973;
+        }
+        var skins = ['#8d7358', '#a88b6d', '#715a45', '#c2a184', '#5f4b3a'];
+        var coats = ['#3f4a42', '#4a3f38', '#2f3b4a', '#4b4230', '#3a3a3a'];
+        return {
+            skin: skins[hash % skins.length],
+            coat: coats[(hash + 3) % coats.length]
+        };
+    }
+
+    function cleanTraveler(date) {
+        var name = pick(FIRST) + ' ' + pick(LAST);
+        var country = pick(COUNTRIES);
+        var purpose = pick(PURPOSES);
+        if (country === 'Karsk') purpose = 'Work';
+        var days = 1 + Math.floor(Math.random() * 30);
+        var stamp = Math.random() < 0.5;
+        if (days > 14) stamp = true;
+        var number = makeNumber();
+        return {
+            stampDate: iso(date),
+            passport: {
+                name: name,
+                country: country,
+                number: number,
+                born: iso(addDays(date, -1 * (6570 + Math.floor(Math.random() * 7300)))),
+                expiry: iso(addDays(date, 1 + Math.floor(Math.random() * 1200)))
+            },
+            permit: {
+                name: name,
+                number: number,
+                purpose: purpose,
+                days: days,
+                stamp: stamp,
+                issued: iso(addDays(date, -1 - Math.floor(Math.random() * 20)))
+            }
+        };
+    }
+
+    function differentName(name) {
+        var parts = name.split(' ');
+        var other = pick(FIRST);
+        return other === parts[0] ? pick(LAST) + ' ' + parts[0] : other + ' ' + parts[1];
+    }
+
+    function breakRule(traveler, rule, date) {
+        if (rule.id === 'expired') {
+            traveler.passport.expiry = iso(addDays(date, -1 - Math.floor(Math.random() * 400)));
+        } else if (rule.id === 'name') {
+            traveler.permit.name = differentName(traveler.passport.name);
+        } else if (rule.id === 'number') {
+            var next = makeNumber();
+            while (next === traveler.passport.number) next = makeNumber();
+            traveler.permit.number = next;
+        } else if (rule.id === 'karsk') {
+            traveler.passport.country = 'Karsk';
+            traveler.permit.purpose = pick(['Visit', 'Transit']);
+        } else if (rule.id === 'vostok') {
+            traveler.passport.country = 'Vostok';
+        } else if (rule.id === 'stay') {
+            traveler.permit.days = 15 + Math.floor(Math.random() * 45);
+            traveler.permit.stamp = false;
+        }
+        return traveler;
+    }
+
+    function violations(traveler) {
+        var active = RULES.filter(function (rule) { return rule.day <= state.day; });
+        return active.filter(function (rule) { return rule.test(traveler); });
+    }
+
+    function makeTraveler(date) {
+        var active = RULES.filter(function (rule) { return rule.day <= state.day; });
+        var wantViolation = Math.random() < 0.48;
+
+        for (var attempt = 0; attempt < 60; attempt++) {
+            var traveler = cleanTraveler(date);
+            if (wantViolation) {
+                var broken = active.slice().sort(function () { return Math.random() - 0.5; });
+                var count = state.day > 1 && Math.random() < 0.14 ? 2 : 1;
+                for (var i = 0; i < count; i++) {
+                    traveler = breakRule(traveler, broken[i % broken.length], date);
+                }
+            }
+            var found = violations(traveler).length;
+            if (wantViolation ? found > 0 : found === 0) return traveler;
+        }
+        return cleanTraveler(date);
+    }
+
+    function setScreen(name) {
+        ['start', 'game', 'day', 'end'].forEach(function (screen) {
+            $('screen-' + screen).classList.toggle('active', screen === name);
+        });
+        $('verdict-bar').style.visibility = name === 'game' ? 'visible' : 'hidden';
+    }
+
+    function renderStrikes() {
+        for (var i = 0; i < 3; i++) {
+            $('s' + i).classList.toggle('on', i < state.strikes);
+        }
+    }
+
+    function renderRulebook() {
+        $('rulebook-day').textContent = 'Night ' + state.day + ' \u00b7 rules in force';
+        $('rulebook-list').innerHTML = '';
+        RULES.filter(function (rule) { return rule.day <= state.day; }).forEach(function (rule) {
+            var item = document.createElement('li');
+            item.textContent = rule.text;
+            $('rulebook-list').appendChild(item);
+        });
+    }
+
+    function fieldText(value) { return String(value).toUpperCase(); }
+
+    function renderTraveler() {
+        var traveler = state.traveler;
+        var date = shiftDate();
+
+        $('hud-day').textContent = state.day;
+        $('hud-credits').textContent = state.credits;
+        $('hud-date').textContent = pretty(iso(date));
+        renderStrikes();
+        renderRulebook();
+
+        var passport = traveler.passport;
+        var permit = traveler.permit;
+        var avatar = makeAvatar(passport.name, passport.country);
+
+        $('pp-country').textContent = fieldText(passport.country);
+        $('pp-name').textContent = fieldText(passport.name);
+        $('pp-number').textContent = passport.number;
+        $('pp-born').textContent = pretty(passport.born);
+        $('pp-expiry').textContent = pretty(passport.expiry);
+        $('pp-photo').style.setProperty('--skin', avatar.skin);
+        $('pp-photo').style.setProperty('--coat', avatar.coat);
+
+        $('pm-name').textContent = fieldText(permit.name);
+        $('pm-number').textContent = permit.number;
+        $('pm-purpose').textContent = fieldText(permit.purpose);
+        $('pm-days').textContent = permit.days + (permit.days === 1 ? ' DAY' : ' DAYS');
+        $('pm-issued').textContent = pretty(permit.issued);
+
+        var stamp = $('pm-stamp');
+        stamp.textContent = permit.stamp ? 'Sponsor stamp' : 'No sponsor stamp';
+        stamp.classList.toggle('missing', !permit.stamp);
+
+        $('result').classList.remove('show');
+        state.busy = false;
+    }
+
+    function showResult(correct, approved, broken) {
+        var card = $('result-card');
+        card.classList.toggle('good', correct);
+        card.classList.toggle('bad', !correct);
+        $('result-stamp').textContent = approved ? 'APPROVED' : 'DENIED';
+
+        var text;
+        if (correct) {
+            text = approved
+                ? 'Papers in order. <b>+25 credits.</b>'
+                : 'Refused with reason. <b>+25 credits.</b>';
+        } else if (approved) {
+            text = 'You cleared a violation: <b>' + broken[0].text + '</b> A 10 credit fine.';
+        } else {
+            text = 'Nothing was wrong with those papers. A 10 credit fine.';
+        }
+        $('result-text').innerHTML = text;
+        $('result').classList.add('show');
+    }
+
+    function judge(approved) {
+        if (state.busy || !state.traveler) return;
+        state.busy = true;
+
+        var broken = violations(state.traveler);
+        var correct = approved ? broken.length === 0 : broken.length > 0;
+
+        if (correct) {
+            state.credits += 25;
+            state.correct += 1;
+        } else {
+            state.credits = Math.max(0, state.credits - 10);
+            state.strikes += 1;
+        }
+
+        $('hud-credits').textContent = state.credits;
+        renderStrikes();
+        showResult(correct, approved, broken);
+
+        resultTimer = setTimeout(function () {
+            $('result').classList.remove('show');
+            if (state.strikes >= 3) {
+                finishShift('Three strikes. The inspector closes your booth for the night.');
+                return;
+            }
+            state.index += 1;
+            if (state.index >= PER_DAY) {
+                endDay();
+                return;
+            }
+            state.traveler = makeTraveler(shiftDate());
+            renderTraveler();
+        }, 1400);
+    }
+
+    function endDay() {
+        state.busy = true;
+        if (state.day >= ENDING_DAY) {
+            finishShift('The border closes. Your record speaks for itself.');
+            return;
+        }
+
+        var nextDay = state.day + 1;
+        $('day-eyebrow').textContent = 'Night ' + state.day + ' complete';
+        $('day-title').textContent = 'Night ' + nextDay + ' begins';
+        $('day-lede').textContent = 'Six more travellers are waiting. The rulebook has been updated.';
+        $('day-rules').innerHTML = '';
+        RULES.filter(function (rule) { return rule.day === nextDay; }).forEach(function (rule) {
+            var item = document.createElement('li');
+            item.innerHTML = '<b>New rule</b><span class="new">next shift</span> ' + rule.text;
+            $('day-rules').appendChild(item);
+        });
+        $('day-btn').textContent = 'Start night ' + nextDay;
+        setScreen('day');
+    }
+
+    function nextDay() {
+        state.day += 1;
+        state.index = 0;
+        state.traveler = makeTraveler(shiftDate());
+        setScreen('game');
+        renderTraveler();
+    }
+
+    function finishShift(message) {
+        state.busy = true;
+        var rank = 'Probationary';
+        if (state.credits >= 350) rank = 'Chief Inspector';
+        else if (state.credits >= 250) rank = 'Inspector';
+        else if (state.credits >= 150) rank = 'Clerk';
+
+        $('end-title').textContent = state.strikes >= 3 ? 'Booth closed' : 'Shift complete';
+        $('end-lede').textContent = message;
+        $('end-credits').textContent = state.credits;
+        $('end-correct').textContent = state.correct;
+        $('end-rank').textContent = rank;
+        setScreen('end');
+    }
+
+    function startShift() {
+        state = { day: 1, index: 0, credits: 0, strikes: 0, correct: 0, busy: false, traveler: null };
+        clearTimeout(resultTimer);
+        state.traveler = makeTraveler(shiftDate());
+        setScreen('game');
+        renderTraveler();
+    }
+
+    $('start-btn').addEventListener('click', startShift);
+    $('again-btn').addEventListener('click', startShift);
+    $('day-btn').addEventListener('click', nextDay);
+    $('approve-btn').addEventListener('click', function () { judge(true); });
+    $('deny-btn').addEventListener('click', function () { judge(false); });
+
+    document.addEventListener('keydown', function (event) {
+        if (event.repeat) return;
+        if (!$('screen-game').classList.contains('active') || $('result').classList.contains('show')) return;
+        var key = String(event.key || '').toLowerCase();
+        if (key === 'a') {
+            event.preventDefault();
+            judge(true);
+        } else if (key === 'd') {
+            event.preventDefault();
+            judge(false);
+        }
+    });
+
+    setScreen('start');
+})();
+</script>
+</body>
+</html>
