@@ -3,6 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Feedback gate: visiting the site opens the Nexus feedback page first,
+         once a week per browser. Any answer (or Skip) stores the timestamp. -->
+    <script>
+        (function () {
+            var last = 0;
+            try { last = Number(localStorage.getItem('gl_feedback_seen')) || 0; }
+            catch (error) { return; }
+            if (Date.now() - last < 604800000) return; // 7 days
+            location.replace('./feedback.html');
+        })();
+    </script>
     <title>GhostLink - Free Proxy Browser</title>
     <link rel="icon" type="image/png" href="https://cdn.jsdelivr.net/gh/virtuan4-max/ghostlinkhub@main/assets/favicon.png">
     <meta name="description" content="GhostLink is a free proxy browser. Access any website anonymously and securely.">
@@ -2603,6 +2614,9 @@
         <div class="nav-group" id="sidebar-nav-top"></div>
         <div class="sidebar-bottom" id="sidebar-nav-bottom"></div>
         <div class="sidebar-support">
+            <a class="nav-item" href="./feedback.html" title="Feedback">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a4 4 0 0 1-4 4H8l-4 4V7a4 4 0 0 1 4-4h9a4 4 0 0 1 4 4z"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="13" y2="12"/></svg><span>Feedback</span>
+            </a>
             <a class="nav-item" href="https://textnexus.me/#support.html" target="_blank" rel="noopener" title="Support">
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg><span>Support</span>
             </a>
