@@ -2938,7 +2938,6 @@
                             <select id="init-target-select" onchange="saveConfig()">
                                 <option value="games">Games</option>
                                 <option value="home">Home</option>
-                                <option value="ai">AI Terminal</option>
                                 <option value="proxy">Proxy</option>
                                 <option value="customapps">Custom Apps</option>
                                 <option value="marketplace">Marketplace</option>
@@ -2993,7 +2992,6 @@
                             <select id="new-sc-action" style="flex:1; margin:0; padding:10px 12px;">
                                 <option value="home">Home</option>
                                 <option value="games">Games</option>
-                                <option value="ai">AI Terminal</option>
                                 <option value="proxy">Proxy</option>
                                 <option value="customapps">Custom Apps</option>
                                 <option value="marketplace">Marketplace</option>
@@ -3189,7 +3187,7 @@
                     <button class="zone-control-btn" onclick="closeZone()">Close</button>
                 </div>
             </div>
-            <iframe id="zoneFrame"></iframe>
+            <iframe id="zoneFrame" allow="pointer-lock; fullscreen; gamepad; autoplay"></iframe>
         </div>
 
         <!-- PROXY SECTION  -->
@@ -3966,7 +3964,6 @@
         const systemPages = [
             { id: 'home', name: 'Home', svg: `<svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` },
             { id: 'games', name: 'Games', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 7C4 7 2 8.5 2 11c0 2 .5 3.8 1.5 5.2C4.4 17.5 5.3 18 6.2 18c.7 0 1.3-.3 2.1-.8l.8-.6C9.7 16.2 10.8 16 12 16s2.3.2 2.9.6l.8.6c.8.5 1.4.8 2.1.8.9 0 1.8-.5 2.7-1.8C21.5 14.8 22 13 22 11c0-2.5-2-4-3.5-4H5.5z"/><path d="M8.5 7V5.5A.5.5 0 0 1 9 5h6a.5.5 0 0 1 .5.5V7"/><line x1="7" y1="10.5" x2="7" y2="13.5"/><line x1="5.5" y1="12" x2="8.5" y2="12"/><circle cx="15.5" cy="10.5" r=".75" fill="currentColor"/><circle cx="17.5" cy="12.5" r=".75" fill="currentColor"/></svg>` },
-            { id: 'ai', name: 'AI Terminal', svg: `<svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><line x1="10" y1="9" x2="10" y2="15"/><line x1="14" y1="9" x2="14" y2="15"/></svg>` },
             { id: 'lucide', name: 'Lucide', svg: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h18"/></svg>` },
             { id: 'proxy', name: 'Proxy', svg: `<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>` },
             { id: 'customapps', name: 'Custom Apps', svg: `<svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><path d="M3 14h7v7H3z"/></svg>` },
@@ -3981,12 +3978,12 @@
         if (!shortcuts.custom) shortcuts.custom = [];
         
         let navOrder = JSON.parse(localStorage.getItem('ghostlink_nav_order')) || {
-            top: ['home', 'games', 'ai', 'lucide', 'proxy'],
+            top: ['home', 'games', 'lucide', 'proxy'],
             bottom: ['customapps', 'marketplace', 'settings']
         };
 
-        navOrder.top = navOrder.top.filter(id => id !== 'gnmath');
-        navOrder.bottom = navOrder.bottom.filter(id => id !== 'gnmath');
+        navOrder.top = navOrder.top.filter(id => id !== 'gnmath' && id !== 'ai');
+        navOrder.bottom = navOrder.bottom.filter(id => id !== 'gnmath' && id !== 'ai');
 
         if (!navOrder.top.includes('lucide') && !navOrder.bottom.includes('lucide')) {
             navOrder.top.splice(3, 0, 'lucide');
@@ -4047,6 +4044,8 @@
 
         // --- NAV ---
         async function nav(page, appData = null) {
+            // The AI Terminal is gone; old shortcuts and links land on Home.
+            if (page === 'ai') page = 'home';
             // Close any open game when navigating
             const _zv = document.getElementById('zoneViewer');
             if (_zv && _zv.style.display === 'flex') closeZone();
@@ -4111,12 +4110,6 @@
                 }
             } else if (page === 'achievements') {
                 achievementsView.style.display = 'block';
-            } else if (page === 'ai') {
-                const baseUrl = 'https://cdn.jsdelivr.net/gh/virtuan4-max/ghostlinkhub@main/src/';
-                const fileMap = { 'ai': 'ai.html' };
-                sendThemeToIframe();
-                loadIntoFrame(`${baseUrl}${fileMap[page]}?v=${new Date().getTime()}`);
-                sendThemeToIframe();
             } else if (page === 'lucide') {
                 loadIntoFrame('Lucide/index.html');
             }
@@ -4546,7 +4539,7 @@
             const list = document.getElementById('custom-shortcuts-list');
             if (!list) return;
             list.innerHTML = '';
-            const pageNames = { home:'Home', games:'Games', ai:'AI Terminal', proxy:'Proxy', customapps:'Custom Apps', marketplace:'Marketplace', settings:'Settings' };
+            const pageNames = { home:'Home', games:'Games', proxy:'Proxy', customapps:'Custom Apps', marketplace:'Marketplace', settings:'Settings' };
             shortcuts.custom.forEach((sc, i) => {
                 const row = document.createElement('div');
                 row.className = 'custom-shortcut-row';
@@ -7694,6 +7687,16 @@
                 }
                 const response = await fetch(zonesURL + "?t=" + Date.now());
                 zones = await response.json();
+                try {
+                    const extraResponse = await fetch("ghostlink-extra-games.json?t=" + Date.now());
+                    if (extraResponse.ok) {
+                        const extraGames = await extraResponse.json();
+                        if (Array.isArray(extraGames) && extraGames.length) {
+                            const knownIds = new Set(zones.map(zone => String(zone.id)));
+                            zones = zones.concat(extraGames.filter(zone => !knownIds.has(String(zone.id))));
+                        }
+                    }
+                } catch (error) { /* the online catalogue still works without the pinned games */ }
                 if (!gamesLoadPopularityCache()) gamesFetchPopularity();
                 gamesSetupFeatured();
                 gamesHandleSearch();
@@ -7887,6 +7890,7 @@
             if (!zoneFrame || !zoneFrame.isConnected) {
                 zoneFrame = document.createElement('iframe');
                 zoneFrame.id = 'zoneFrame';
+                zoneFrame.setAttribute('allow', 'pointer-lock; fullscreen; gamepad; autoplay');
                 zoneViewer.appendChild(zoneFrame);
             }
             zoneFrame.removeAttribute('srcdoc');
@@ -7982,6 +7986,48 @@
             });
         }
 
+        // Endoparasitic (and its sequel) are mouse-look shooters. The desktop port
+        // never asks for pointer lock, so the cursor drifts out of the canvas. A
+        // small in-frame helper locks the pointer on the first click and tells the
+        // player how to release it.
+        function gamesInjectPointerLock(html, file) {
+            if (!/endoparasitic/i.test(file.name || '')) return html;
+            const closeScript = '<' + '/script>';
+            const helper = `
+<style>
+#nx-pointer-lock-hint{position:fixed;left:50%;bottom:18px;transform:translateX(-50%);z-index:2147483647;
+ padding:8px 14px;border-radius:999px;background:rgba(0,0,0,.72);color:#fff;
+ font:600 12px/1.4 system-ui,sans-serif;letter-spacing:.02em;pointer-events:none;text-align:center;
+ box-shadow:0 4px 18px rgba(0,0,0,.45);opacity:.94;transition:opacity .3s}
+#nx-pointer-lock-hint small{display:block;font-weight:400;opacity:.7;font-size:10px}
+</style>
+<div id="nx-pointer-lock-hint">Click the game to lock the mouse<small>Esc releases the cursor</small></div>
+<script>
+(function(){
+  var hint=document.getElementById('nx-pointer-lock-hint');
+  var canvas=null;
+  function findCanvas(){ if(!canvas||!canvas.isConnected) canvas=document.querySelector('canvas'); return canvas; }
+  function setHint(text,sub){ if(!hint||!hint.isConnected) return; hint.innerHTML=text+'<small>'+sub+'</small>'; hint.style.opacity='1'; }
+  document.addEventListener('pointerlockchange',function(){
+    if(document.pointerLockElement){ setHint('Mouse locked','Press Esc to release'); setTimeout(function(){ if(hint) hint.style.opacity='0.25'; },1600); }
+    else { setHint('Click the game to lock the mouse','Esc releases the cursor'); }
+  },true);
+  document.addEventListener('pointerlockerror',function(){ setHint('Mouse lock was blocked','Click the game window, then try again'); },true);
+  document.addEventListener('click',function(event){
+    var target=event.target;
+    if(!target||!target.closest) return;
+    if(target.closest('button, a, input, select, textarea')) return;
+    if(!target.closest('canvas') && target!==document.body) return;
+    var c=findCanvas();
+    if(!c||document.pointerLockElement===c) return;
+    if(c.requestPointerLock){ try{ c.requestPointerLock(); }catch(e){} }
+  },true);
+})();
+${closeScript}`;
+            const at = html.toLowerCase().lastIndexOf('</body>');
+            return at === -1 ? html + helper : html.slice(0, at) + helper + html.slice(at);
+        }
+
         async function openZone(file) {
             if (!file || !file.url) return;
             if (file.name && file.name.indexOf('SUGGEST') !== -1) {
@@ -7999,9 +8045,10 @@
             zoneViewer.style.display = "flex";
             gamesShowFrameMessage('Loading', 'Fetching ' + gamesEscape(file.name) + '…');
 
-            const url = gamesResolveUrl(file.url);
+            const url = gamesResolveUrl(file.source || file.url);
             try {
-                const html = cleanHTML(await gamesFetchText(url));
+                let html = cleanHTML(await gamesFetchText(url));
+                html = gamesInjectPointerLock(html, file);
                 if (!html || !html.trim()) throw new Error('empty game file');
                 gamesWriteFrame(html);
             } catch (error) {
