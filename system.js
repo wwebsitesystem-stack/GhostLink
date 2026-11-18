@@ -304,3 +304,10 @@ function paint() {
 }
 
 export { STAFF_EMAILS, MODES };
+
+// Bundled games: the games table reads the online catalogue only, so hand it
+// the local catalogue from the last module the page loads. A failure is logged
+// and never blocks the status gate.
+import("./games/local-games.js").catch((error) => {
+    console.warn("GhostLink bundled games unavailable:", error && error.message);
+});
