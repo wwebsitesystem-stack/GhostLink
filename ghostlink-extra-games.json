@@ -1,0 +1,23 @@
+[
+  {
+    "id": 120,
+    "name": "Fortzone Battle Royale",
+    "cover": "covers/battle-royale.svg",
+    "url": "specter:120",
+    "source": "https://cdn.jsdelivr.net/gh/freebuisness/html@main/120-fix2.html"
+  },
+  {
+    "id": 1538,
+    "name": "Deltarune",
+    "cover": "covers/deltarune.svg",
+    "url": "specter:1538",
+    "source": "https://raw.githubusercontent.com/immcrab/specter-games/4d036f2f117d43611d75b07cd3b20affdb5e4fbc/games/1538-fix.html"
+  },
+  {
+    "id": 1597,
+    "name": "UNDERTALE",
+    "cover": "covers/undertale.svg",
+    "url": "specter:1597",
+    "source": "https://raw.githubusercontent.com/immcrab/specter-games/4d036f2f117d43611d75b07cd3b20affdb5e4fbc/games/1597-fix.html"
+  }
+]

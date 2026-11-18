@@ -1,0 +1,30 @@
+name: Apply GhostLink fixes
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-ghostlink-fixes.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Apply the prepared index.html fixes
+        run: python3 .github/scripts/apply-ghostlink-fixes.py
+      - name: Commit the result
+        run: |
+          git config user.name "GhostLink fixes"
+          git config user.email "actions@users.noreply.github.com"
+          git add index.html
+          if git diff --cached --quiet; then
+            echo "Nothing to apply."
+            exit 0
+          fi
+          git commit -m "Fix the AI terminal, proxy assets, game catalogue and Endoparasitic mouse lock."
+          git pull --rebase origin main
+          git push
