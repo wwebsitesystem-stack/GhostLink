@@ -8,7 +8,14 @@
  * fails, the online catalogue is left untouched.
  */
 
+import "./compat.js";
+
 let installed = false;
+let compatInstalled = false;
+
+// Catalogue entries that are not playable games. The "Ruffle" entry (113) is
+// the emulator's demo page with a local-file picker.
+const HIDDEN_IDS = new Set(["113"]);
 
 function addLocalGames(localGames) {
     // `zones` is the games table's catalogue array, declared by the classic
@@ -26,7 +33,9 @@ function addLocalGames(localGames) {
             .filter((game) => game.replaces !== undefined)
             .map((game) => String(game.replaces))
     );
-    const kept = zones.filter((zone) => !replaced.has(String(zone.id)));
+    const kept = zones.filter((zone) => (
+        !replaced.has(String(zone.id)) && !HIDDEN_IDS.has(String(zone.id))
+    ));
     const known = new Set(kept.map((zone) => String(zone.id)));
     const missing = entries.filter((game) => !known.has(String(game.id)));
 
@@ -35,6 +44,44 @@ function addLocalGames(localGames) {
     zones = missing.concat(kept);
     if (typeof window.gamesSetupFeatured === "function") window.gamesSetupFeatured();
     if (typeof window.gamesHandleSearch === "function") window.gamesHandleSearch();
+}
+
+function resolveSource(file) {
+    const raw = String((file && (file.source || file.url)) || "");
+    if (!raw) return "";
+    let htmlBase = "";
+    try {
+        if (typeof htmlURL === "string") htmlBase = htmlURL;
+    } catch (error) { /* htmlURL is not always in scope */ }
+    const resolved = raw
+        .replace("{HTML_URL}", htmlBase)
+        .replace("{COVER_URL}", "https://cdn.jsdelivr.net/gh/freebuisness/covers@main");
+    return /^https?:/i.test(resolved) ? resolved : "";
+}
+
+function installWrapperCompat() {
+    if (compatInstalled) return;
+    if (typeof window.fetchGameHtml !== "function") return;
+
+    const original = window.fetchGameHtml;
+    if (original.__nxCompat) {
+        compatInstalled = true;
+        return;
+    }
+
+    const wrapped = async function (file) {
+        const html = await original.apply(this, arguments);
+        try {
+            return window.NexusGameCompat
+                ? window.NexusGameCompat.prepare(html, resolveSource(file))
+                : html;
+        } catch (error) {
+            return html;
+        }
+    };
+    wrapped.__nxCompat = true;
+    window.fetchGameHtml = wrapped;
+    compatInstalled = true;
 }
 
 async function install() {
@@ -47,9 +94,12 @@ async function install() {
     const localGames = Array.isArray(window.NEXUS_GAMES) ? window.NEXUS_GAMES : [];
     if (!localGames.length) return;
 
+    installWrapperCompat();
+
     const listZones = window.gamesListZones;
     window.gamesListZones = async function (...args) {
         await listZones.apply(this, args);
+        installWrapperCompat();
         try {
             addLocalGames(localGames);
         } catch (error) {
