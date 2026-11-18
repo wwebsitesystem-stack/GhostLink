@@ -46,41 +46,31 @@ function addLocalGames(localGames) {
     if (typeof window.gamesHandleSearch === "function") window.gamesHandleSearch();
 }
 
-function resolveSource(file) {
-    const raw = String((file && (file.source || file.url)) || "");
-    if (!raw) return "";
-    let htmlBase = "";
-    try {
-        if (typeof htmlURL === "string") htmlBase = htmlURL;
-    } catch (error) { /* htmlURL is not always in scope */ }
-    const resolved = raw
-        .replace("{HTML_URL}", htmlBase)
-        .replace("{COVER_URL}", "https://cdn.jsdelivr.net/gh/freebuisness/covers@main");
-    return /^https?:/i.test(resolved) ? resolved : "";
-}
-
 function installWrapperCompat() {
     if (compatInstalled) return;
-    if (typeof window.fetchGameHtml !== "function") return;
 
-    const original = window.fetchGameHtml;
-    if (original.__nxCompat) {
+    // The standalone app fetches wrapper HTML through gamesFetchText(url) and
+    // then passes it to cleanHTML() and gamesWriteFrame(). Wrap that one call
+    // so the shim sees the wrapper before it is written into the frame.
+    const fetchText = window.gamesFetchText;
+    if (typeof fetchText !== "function") return;
+    if (fetchText.__nxCompat) {
         compatInstalled = true;
         return;
     }
 
-    const wrapped = async function (file) {
-        const html = await original.apply(this, arguments);
+    const wrapped = async function (url) {
+        const html = await fetchText.apply(this, arguments);
         try {
             return window.NexusGameCompat
-                ? window.NexusGameCompat.prepare(html, resolveSource(file))
+                ? window.NexusGameCompat.prepare(html, String(url || ""))
                 : html;
         } catch (error) {
             return html;
         }
     };
     wrapped.__nxCompat = true;
-    window.fetchGameHtml = wrapped;
+    window.gamesFetchText = wrapped;
     compatInstalled = true;
 }
 
@@ -90,11 +80,11 @@ async function install() {
     if (typeof window.gamesListZones !== "function") return;
     installed = true;
 
+    installWrapperCompat();
+
     await import("./catalog.js");
     const localGames = Array.isArray(window.NEXUS_GAMES) ? window.NEXUS_GAMES : [];
     if (!localGames.length) return;
-
-    installWrapperCompat();
 
     const listZones = window.gamesListZones;
     window.gamesListZones = async function (...args) {
