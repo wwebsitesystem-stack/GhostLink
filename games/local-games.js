@@ -11,7 +11,8 @@
 import "./compat.js";
 
 let installed = false;
-let compatInstalled = false;
+let fetchWrapped = false;
+let writeWrapped = false;
 
 // Catalogue entries that are not playable games. The "Ruffle" entry (113) is
 // the emulator's demo page with a local-file picker.
@@ -47,31 +48,48 @@ function addLocalGames(localGames) {
 }
 
 function installWrapperCompat() {
-    if (compatInstalled) return;
-
     // The standalone app fetches wrapper HTML through gamesFetchText(url) and
-    // then passes it to cleanHTML() and gamesWriteFrame(). Wrap that one call
-    // so the shim sees the wrapper before it is written into the frame.
-    const fetchText = window.gamesFetchText;
-    if (typeof fetchText !== "function") return;
-    if (fetchText.__nxCompat) {
-        compatInstalled = true;
-        return;
+    // then passes it to cleanHTML() and gamesWriteFrame(). Wrap that call so
+    // the shim sees the wrapper before it is written into the frame.
+    if (!fetchWrapped) {
+        const fetchText = window.gamesFetchText;
+        if (typeof fetchText === "function" && !fetchText.__nxCompat) {
+            const wrapped = async function (url) {
+                const html = await fetchText.apply(this, arguments);
+                try {
+                    return window.NexusGameCompat
+                        ? window.NexusGameCompat.prepare(html, String(url || ""))
+                        : html;
+                } catch (error) {
+                    return html;
+                }
+            };
+            wrapped.__nxCompat = true;
+            window.gamesFetchText = wrapped;
+            fetchWrapped = true;
+        } else if (fetchText && fetchText.__nxCompat) {
+            fetchWrapped = true;
+        }
     }
 
-    const wrapped = async function (url) {
-        const html = await fetchText.apply(this, arguments);
-        try {
-            return window.NexusGameCompat
-                ? window.NexusGameCompat.prepare(html, String(url || ""))
-                : html;
-        } catch (error) {
-            return html;
+    // document.write() reuses the iframe's window, so a wrapper's top-level
+    // const declarations survive into the next game and make its script throw
+    // "Identifier has already been declared". Give every game a fresh frame.
+    if (!writeWrapped) {
+        const writeFrame = window.gamesWriteFrame;
+        if (typeof writeFrame === "function" && !writeFrame.__nxFreshFrame) {
+            const freshFrame = function () {
+                const old = document.getElementById("zoneFrame");
+                if (old) old.remove();
+                return writeFrame.apply(this, arguments);
+            };
+            freshFrame.__nxFreshFrame = true;
+            window.gamesWriteFrame = freshFrame;
+            writeWrapped = true;
+        } else if (writeFrame && writeFrame.__nxFreshFrame) {
+            writeWrapped = true;
         }
-    };
-    wrapped.__nxCompat = true;
-    window.gamesFetchText = wrapped;
-    compatInstalled = true;
+    }
 }
 
 async function install() {
