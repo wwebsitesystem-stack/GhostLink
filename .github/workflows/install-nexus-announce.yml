@@ -1,0 +1,40 @@
+name: Install Nexus Social pop-up
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/install-nexus-announce.yml'
+      - '.github/scripts/install-nexus-announce.py'
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Patch the pages and the admin console
+        run: python3 .github/scripts/install-nexus-announce.py
+      - name: Commit the result
+        run: |
+          git config user.name "GhostLink announce"
+          git config user.email "actions@users.noreply.github.com"
+          git add nexus-announce.js index.html feedback.html system-console.html
+          if git diff --cached --quiet; then
+            echo "Nothing to install."
+            exit 0
+          fi
+          git commit -m "$(cat <<'EOF'
+          Show the staff-controlled Nexus Social pop-up on GhostLink.
+
+          The notice reads system/announcement and is edited from the GhostLink
+          admin console, so the same switch controls both sites without a deploy.
+
+          🤖 Generated with Codebuff
+          Co-Authored-By: Codebuff <noreply@codebuff.com>
+          EOF
+          )"
+          git pull --rebase origin main
+          git push
