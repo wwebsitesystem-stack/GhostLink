@@ -1,5 +1,10 @@
 # GhostLink
 
+> **Nexus 10.0 launch delayed.** We are holding the 10.0 release until Nexus
+> moves to a new domain. `textnexus.me` is currently blocked by Saint Paul
+> Public Schools, so 10.0 will launch on the new domain. GhostLink stays on the
+> launch-delay notice until then; nothing has been deleted.
+
 Single-page proxy browser. `index.html` is the whole app; `global-refresh-client.js`
 adds the Google account and the Firebase-backed global refresh.
 

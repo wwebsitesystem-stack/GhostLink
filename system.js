@@ -311,3 +311,97 @@ export { STAFF_EMAILS, MODES };
 import("./games/local-games.js").catch((error) => {
     console.warn("GhostLink bundled games unavailable:", error && error.message);
 });
+
+/*
+ * Nexus 10.0 launch delay for static hosts. The edge middleware covers the
+ * Cloudflare deployment; this keeps GitHub Pages and plain mirrors on the
+ * same message while Nexus is waiting for its new domain.
+ */
+const NEXUS10_DELAY_START = Date.parse("2026-11-20T21:00:00Z");
+const NEXUS10_DELAY_END = Date.parse("2099-12-31T23:59:59Z");
+const NEXUS10_DELAY_SKIP = /^\/(?:system-console(?:\.html)?|system\.js|realtime-refresh\.js|global-refresh-client\.js|ghostlink-bans\.js)$/i;
+
+function showNexus10Delay() {
+    if (window.top !== window.self) return;
+    const now = Date.now();
+    if (now < NEXUS10_DELAY_START || now >= NEXUS10_DELAY_END) return;
+    if (NEXUS10_DELAY_SKIP.test(window.location.pathname || "/")) return;
+    if (document.getElementById("ghostlink-nexus10-delay")) return;
+
+    const style = document.createElement("style");
+    style.id = "ghostlink-nexus10-delay-style";
+    style.textContent = `
+        #ghostlink-nexus10-delay {
+            position: fixed; inset: 0; z-index: 2147483647;
+            display: flex; align-items: center; justify-content: center;
+            padding: 24px; overflow-y: auto;
+            background: #05070a; color: #e8feff;
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+        }
+        #ghostlink-nexus10-delay .gl-nx10-card {
+            width: min(540px, 100%); padding: 34px 30px;
+            border: 1px solid #1d2b33; border-radius: 16px;
+            background:
+                radial-gradient(circle at 100% 0%, rgba(110, 203, 255, 0.12), transparent 58%),
+                #0a1116;
+            box-shadow: 0 30px 90px -40px #000;
+        }
+        #ghostlink-nexus10-delay .gl-nx10-badge {
+            display: inline-block; margin-bottom: 16px; padding: 4px 10px;
+            border-radius: 999px; font-size: 9px; font-weight: 700;
+            letter-spacing: 0.14em; text-transform: uppercase;
+            color: #6ecbff; border: 1px solid rgba(110, 203, 255, 0.45);
+            background: rgba(110, 203, 255, 0.1);
+        }
+        #ghostlink-nexus10-delay h1 {
+            margin: 0 0 10px; font-size: clamp(22px, 5vw, 28px);
+            line-height: 1.25; font-weight: 650;
+        }
+        #ghostlink-nexus10-delay p {
+            margin: 0 0 14px; font-size: 13.5px; line-height: 1.7;
+            color: #8aa3ad;
+        }
+        #ghostlink-nexus10-delay p b { color: #e8feff; }
+        #ghostlink-nexus10-delay .gl-nx10-next {
+            margin: 18px 0 20px; padding: 13px 15px;
+            border: 1px solid rgba(110, 203, 255, 0.28); border-radius: 11px;
+            background: rgba(110, 203, 255, 0.07); color: #c9e9ff;
+        }
+        #ghostlink-nexus10-delay a {
+            display: inline-flex; padding: 8px 13px; border: 1px solid #1d2b33;
+            border-radius: 9px; color: #e8feff; font-size: 11.5px;
+            font-weight: 600; text-decoration: none;
+        }
+        @media (max-width: 520px) {
+            #ghostlink-nexus10-delay { padding: 14px; align-items: flex-start; }
+            #ghostlink-nexus10-delay .gl-nx10-card { padding: 26px 20px; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    const gate = document.createElement("div");
+    gate.id = "ghostlink-nexus10-delay";
+    gate.setAttribute("role", "alertdialog");
+    gate.setAttribute("aria-modal", "true");
+    gate.setAttribute("aria-label", "Nexus 10.0 launch delayed");
+    gate.innerHTML = `
+        <div class="gl-nx10-card">
+            <span class="gl-nx10-badge">Nexus 10.0 &middot; Launch delayed</span>
+            <h1>GhostLink is waiting on Nexus 10.0.</h1>
+            <p>We are holding the <b>Nexus 10.0</b> release until Nexus moves to a new domain.
+                <b>textnexus.me is currently blocked by Saint Paul Public Schools</b>, so 10.0
+                will launch on the new domain.</p>
+            <p>Nothing has been deleted &mdash; your apps, shortcuts and settings are safe.</p>
+            <p class="gl-nx10-next"><b>Next step:</b> a new Nexus domain. The new address and
+                launch date will be posted here and sent by email.</p>
+            <a href="/system-console">Staff access</a>
+        </div>
+    `;
+    document.body.appendChild(gate);
+}
+
+if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", showNexus10Delay, { once: true });
+} else {
+    showNexus10Delay();
+}
