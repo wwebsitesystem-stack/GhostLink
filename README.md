@@ -1,9 +1,8 @@
 # GhostLink
 
-> **Nexus 10.0 launch delayed.** We are holding the 10.0 release until Nexus
-> moves to a new domain. `textnexus.me` is currently blocked by Saint Paul
-> Public Schools, so 10.0 will launch on the new domain. GhostLink stays on the
-> launch-delay notice until then; nothing has been deleted.
+> **Nexus is back up Monday at 9:50 AM CT.** Nexus returns on its new domain,
+> `textnexus.dev`, with `textnexus.me` alongside it. GhostLink comes back at the
+> same time; nothing has been deleted.
 
 Single-page proxy browser. `index.html` is the whole app; `global-refresh-client.js`
 adds the Google account and the Firebase-backed global refresh.
@@ -54,8 +53,9 @@ module have to sit in the same folder.
 
 1. **Authentication → Sign-in method** — Google must be enabled (it already is
    for the Nexus account).
-2. **Authentication → Settings → Authorized domains** — `textnexus.me` plus any
-   other host that serves GhostLink (for example `wwebsitesystem-stack.github.io`).
+2. **Authentication → Settings → Authorized domains** — `textnexus.dev` and
+   `textnexus.me` plus any other host that serves GhostLink (for example
+   `wwebsitesystem-stack.github.io`).
 3. **Realtime Database → Rules** — add the blocks below **inside** the existing
    rules. Do not replace the whole tree: the `nexus` rules power the site and
    the system console.
