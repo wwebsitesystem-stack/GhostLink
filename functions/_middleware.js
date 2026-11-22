@@ -130,6 +130,8 @@ function nexus10Notice() {
     font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
   .next{margin:18px 0 20px;padding:13px 15px;border:1px solid rgba(110,203,255,.28);
     border-radius:11px;background:rgba(110,203,255,.07);color:#c9e9ff}
+  .hint{margin:0 0 20px;padding:13px 15px;border:1px solid rgba(110,203,255,.24);
+    border-radius:11px;background:rgba(110,203,255,.06)}
   a{display:inline-flex;padding:8px 13px;border:1px solid #1d2b33;
     border-radius:9px;color:#e8feff;font-size:11.5px;font-weight:600;text-decoration:none}
 </style>
@@ -142,6 +144,9 @@ function nexus10Notice() {
       beside it. The workspace, apps and settings reopen Monday, November 23 at
       9:50 AM CT.</p>
     <p>Nothing has been deleted &mdash; your apps, shortcuts and settings are safe.</p>
+    <p class="hint"><b>Also &mdash; we lied.</b> We&rsquo;re very sorry, but this is not going to
+      be the biggest update Nexus has brought. Here&rsquo;s a hint: <b>December 1, 2026</b>.
+      Stay tuned for that update. It&rsquo;ll be the biggest update Nexus has ever brought.</p>
     <div class="timer" role="timer" aria-label="Time until GhostLink reopens">
       <div><b data-gl-days>00</b><span>Days</span></div>
       <div><b data-gl-hours>00</b><span>Hours</span></div>
