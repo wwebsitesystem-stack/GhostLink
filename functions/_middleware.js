@@ -23,11 +23,12 @@
 const SYSTEM_BASE = "https://nexus-web-development-official-default-rtdb.firebaseio.com";
 const CACHE_MS = 10_000;
 
-// Nexus 10.0 return hold. The shared release window opened at 3:00 PM Central
-// on Friday, November 20, 2026 and lifts on Monday, November 23, 2026 at
-// 9:50 AM Central, when Nexus is back up on its new domain, textnexus.dev.
+// Nexus 10.0 beta return hold. The shared release window opened at 3:00 PM
+// Central on Friday, November 20, 2026 and lifts tonight, Sunday, November 22,
+// 2026 at 8:00 PM Central, when Nexus 10.0 Beta is back up on its new domain,
+// textnexus.dev.
 const NEXUS10_START = Date.parse("2026-11-20T21:00:00Z"); // 3:00 PM CST
-const NEXUS10_END = Date.parse("2026-11-23T15:50:00Z");   // 9:50 AM CST, Nexus reopens
+const NEXUS10_END = Date.parse("2026-11-23T02:00:00Z");   // 8:00 PM CST, 10.0 Beta opens
 
 // Blocking modes and the label their notice uses.
 const BLOCKING = new Map([
@@ -106,7 +107,7 @@ function nexus10Notice() {
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex">
-<title>GhostLink is back up Monday at 9:50 AM CT</title>
+<title>GhostLink is back up tonight at 8:00 PM CT</title>
 <style>
   html,body{height:100%;margin:0}
   [hidden]{display:none!important}
@@ -138,12 +139,13 @@ function nexus10Notice() {
 </head>
 <body>
   <div class="card">
-    <span class="badge">Nexus 10.0 &middot; Back up Monday</span>
-    <h1>GhostLink is back up with a new domain.</h1>
+    <span class="badge">Nexus 10.0 Beta &middot; Tonight</span>
+    <h1>GhostLink is back up tonight with a new domain.</h1>
     <p>GhostLink is back up on <b>textnexus.dev</b>, with <b>textnexus.me</b> right
-      beside it. The workspace, apps and settings reopen Monday, November 23 at
-      9:50 AM CT.</p>
-    <p>Nothing has been deleted &mdash; your apps, shortcuts and settings are safe.</p>
+      beside it. The workspace, apps and settings reopen tonight, Sunday, November
+      22 at 8:00 PM CT, as <b>Nexus 10.0 Beta</b>.</p>
+    <p>Nothing has been deleted &mdash; your apps, shortcuts and settings are safe.
+      The beta carries the full 10.0 update set.</p>
     <p class="hint"><b>Also &mdash; we lied.</b> We&rsquo;re very sorry, but this is not going to
       be the biggest update Nexus has brought. Here&rsquo;s a hint: <b>December 1, 2026</b>.
       Stay tuned for that update. It&rsquo;ll be the biggest update Nexus has ever brought.</p>
@@ -153,14 +155,15 @@ function nexus10Notice() {
       <div><b data-gl-minutes>00</b><span>Minutes</span></div>
       <div><b data-gl-seconds>00</b><span>Seconds</span></div>
     </div>
-    <p class="next"><b>Doors open:</b> Monday, November 23 at 9:50 AM CT. This page
-      opens GhostLink for you when the countdown ends.</p>
+    <p class="next"><b>Beta opens:</b> tonight, Sunday, November 22 at 8:00 PM CT.
+      This page opens GhostLink for you when the countdown ends.</p>
     <a href="/system-console">Staff access</a>
   </div>
   <script>
     (function () {
       "use strict";
-      var deadline = Date.parse("2026-11-23T09:50:00-06:00");
+      // Nexus 10.0 Beta reopens tonight, Sunday, November 22, 2026 at 8:00 PM CT.
+      var deadline = Date.parse("2026-11-22T20:00:00-06:00");
       var fields = {
         days: document.querySelector("[data-gl-days]"),
         hours: document.querySelector("[data-gl-hours]"),
