@@ -1,8 +1,8 @@
 # GhostLink
 
-> **Nexus is back up Monday at 9:50 AM CT.** Nexus returns on its new domain,
-> `textnexus.dev`, with `textnexus.me` alongside it. GhostLink comes back at the
-> same time; nothing has been deleted.
+> **Nexus 10.0 is live.** Nexus is back on its new domain, `textnexus.dev`,
+> with `textnexus.me` alongside it, and GhostLink is open. Nothing has been
+> deleted.
 
 Single-page proxy browser. `index.html` is the whole app; `global-refresh-client.js`
 adds the Google account and the Firebase-backed global refresh.
