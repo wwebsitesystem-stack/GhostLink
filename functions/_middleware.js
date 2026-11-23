@@ -23,13 +23,6 @@
 const SYSTEM_BASE = "https://nexus-web-development-official-default-rtdb.firebaseio.com";
 const CACHE_MS = 10_000;
 
-// Nexus 10.0 beta return hold. The shared release window opened at 3:00 PM
-// Central on Friday, November 20, 2026 and lifts tonight, Sunday, November 22,
-// 2026 at 8:00 PM Central, when Nexus 10.0 Beta is back up on its new domain,
-// textnexus.dev.
-const NEXUS10_START = Date.parse("2026-11-20T21:00:00Z"); // 3:00 PM CST
-const NEXUS10_END = Date.parse("2026-11-23T02:00:00Z");   // 8:00 PM CST, 10.0 Beta opens
-
 // Blocking modes and the label their notice uses.
 const BLOCKING = new Map([
   ["maintenance", "maintenance"],
@@ -100,124 +93,6 @@ function pathname(url) {
   return path || "/";
 }
 
-function nexus10Notice() {
-  return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex">
-<title>GhostLink is back up tonight at 8:00 PM CT</title>
-<style>
-  html,body{height:100%;margin:0}
-  [hidden]{display:none!important}
-  body{display:grid;place-items:center;padding:24px;background:#05070a;color:#e8feff;
-    font-family:system-ui,-apple-system,"Segoe UI",sans-serif}
-  .card{width:min(520px,100%);border:1px solid #1d2b33;border-radius:16px;
-    background:radial-gradient(circle at 100% 0%,rgba(110,203,255,.12),transparent 58%),#0a1116;
-    padding:34px 30px}
-  .badge{display:inline-block;margin-bottom:16px;padding:4px 10px;border-radius:999px;
-    font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;
-    color:#6ecbff;border:1px solid rgba(110,203,255,.45);background:rgba(110,203,255,.1)}
-  h1{margin:0 0 10px;font-size:22px;line-height:1.3}
-  p{margin:0 0 14px;font-size:13px;line-height:1.7;color:#8aa3ad}
-  p b{color:#e8feff}
-  .timer{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:18px 0}
-  .timer div{padding:12px 4px;border:1px solid #1d2b33;border-radius:11px;
-    background:rgba(110,203,255,.05);text-align:center}
-  .timer b{display:block;color:#e8feff;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-    font-size:clamp(22px,6vw,30px);font-weight:500;font-variant-numeric:tabular-nums;line-height:1}
-  .timer span{display:block;margin-top:6px;color:#6f8791;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;
-    font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
-  .next{margin:18px 0 20px;padding:13px 15px;border:1px solid rgba(110,203,255,.28);
-    border-radius:11px;background:rgba(110,203,255,.07);color:#c9e9ff}
-  .hint{margin:0 0 20px;padding:13px 15px;border:1px solid rgba(110,203,255,.24);
-    border-radius:11px;background:rgba(110,203,255,.06)}
-  a{display:inline-flex;padding:8px 13px;border:1px solid #1d2b33;
-    border-radius:9px;color:#e8feff;font-size:11.5px;font-weight:600;text-decoration:none}
-</style>
-</head>
-<body>
-  <div class="card">
-    <span class="badge">Nexus 10.0 Beta &middot; Tonight</span>
-    <h1>GhostLink is back up tonight with a new domain.</h1>
-    <p>GhostLink is back up on <b>textnexus.dev</b>, with <b>textnexus.me</b> right
-      beside it. The workspace, apps and settings reopen tonight, Sunday, November
-      22 at 8:00 PM CT, as <b>Nexus 10.0 Beta</b>.</p>
-    <p>Nothing has been deleted &mdash; your apps, shortcuts and settings are safe.
-      The beta carries the full 10.0 update set.</p>
-    <p class="hint"><b>Also &mdash; we lied.</b> We&rsquo;re very sorry, but this is not going to
-      be the biggest update Nexus has brought. Here&rsquo;s a hint: <b>December 1, 2026</b>.
-      Stay tuned for that update. It&rsquo;ll be the biggest update Nexus has ever brought.</p>
-    <div class="timer" role="timer" aria-label="Time until GhostLink reopens">
-      <div><b data-gl-days>00</b><span>Days</span></div>
-      <div><b data-gl-hours>00</b><span>Hours</span></div>
-      <div><b data-gl-minutes>00</b><span>Minutes</span></div>
-      <div><b data-gl-seconds>00</b><span>Seconds</span></div>
-    </div>
-    <p class="next"><b>Beta opens:</b> tonight, Sunday, November 22 at 8:00 PM CT.
-      This page opens GhostLink for you when the countdown ends.</p>
-    <a href="/system-console">Staff access</a>
-  </div>
-  <script>
-    (function () {
-      "use strict";
-      // Nexus 10.0 Beta reopens tonight, Sunday, November 22, 2026 at 8:00 PM CT.
-      var deadline = Date.parse("2026-11-22T20:00:00-06:00");
-      var fields = {
-        days: document.querySelector("[data-gl-days]"),
-        hours: document.querySelector("[data-gl-hours]"),
-        minutes: document.querySelector("[data-gl-minutes]"),
-        seconds: document.querySelector("[data-gl-seconds]")
-      };
-      var openTimer = 0;
-      var KEY = "gl-nx10-open-attempt";
-      var RETRY_MS = 15000;
-
-      function pad(value) { return String(Math.max(0, value)).padStart(2, "0"); }
-      function lastAttempt() {
-        try { return Number(window.sessionStorage.getItem(KEY)) || 0; }
-        catch (error) { return 0; }
-      }
-      function openSite() {
-        try { window.sessionStorage.setItem(KEY, String(Date.now())); }
-        catch (error) { /* storage blocked: the reload still happens */ }
-        window.location.replace("/");
-      }
-      function scheduleOpen() {
-        if (openTimer) return;
-        var since = Date.now() - lastAttempt();
-        var wait = since > 0 && since < RETRY_MS ? RETRY_MS - since : 1200;
-        openTimer = window.setTimeout(openSite, Math.max(300, wait));
-      }
-      function paint() {
-        if (!Number.isFinite(deadline)) return false;
-        var remaining = deadline - Date.now();
-        if (remaining <= 0) {
-          var timer = document.querySelector(".timer");
-          if (timer) timer.hidden = true;
-          document.title = "GhostLink is back up | TextNexus";
-          scheduleOpen();
-          return false;
-        }
-        var total = Math.ceil(remaining / 1000);
-        fields.days.textContent = pad(Math.floor(total / 86400));
-        fields.hours.textContent = pad(Math.floor((total % 86400) / 3600));
-        fields.minutes.textContent = pad(Math.floor((total % 3600) / 60));
-        fields.seconds.textContent = pad(total % 60);
-        return true;
-      }
-
-      if (paint()) window.setInterval(paint, 1000);
-      document.addEventListener("visibilitychange", function () {
-        if (!document.hidden) paint();
-      });
-    })();
-  </script>
-</body>
-</html>`;
-}
-
 function noticePage(mode) {
   const label = BLOCKING.get(mode) || mode;
   return `<!doctype html>
@@ -256,22 +131,6 @@ function noticePage(mode) {
 export async function onRequest(context) {
   const { request, next } = context;
   const url = new URL(request.url);
-
-  // The 10.0 hold outranks the normal status feed, so GhostLink keeps showing
-  // the launch-delay notice for as long as Nexus is waiting on its new domain.
-  const now = Date.now();
-  if (now >= NEXUS10_START && now < NEXUS10_END && !ALLOWED.has(pathname(url))) {
-    const html = nexus10Notice();
-    return new Response(request.method === "HEAD" ? null : html, {
-      status: 503,
-      headers: {
-        "content-type": "text/html; charset=utf-8",
-        "cache-control": "no-store",
-        "retry-after": "60",
-        "x-nexus-mode": "nexus10"
-      }
-    });
-  }
 
   const mode = await currentMode();
   if (!mode) return next();
